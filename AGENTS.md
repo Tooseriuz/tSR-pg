@@ -20,6 +20,7 @@ KEEP IT SIMPLE
     - type generation for frontend and backend usingo opi-codegen
     - backend and frontend should use generated types instead of create their own type
 2. IMPORTANT reminders before editing
+  - RUN nvm use to use node 24 before doing anything
   - If related to API endpoint changes, do the openapi.yaml first then generate shared DTO types for both frontend and backend
   - Add unit tests on every services level for business logic
   - Add integretion tests on every handlers level for end to end test

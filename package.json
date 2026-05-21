@@ -4,8 +4,12 @@
   "packageManager": "pnpm@10.0.0",
   "scripts": {
     "nx": "nx",
+    "setup:deps": "pnpm nx run setup:deps",
     "dev:web": "pnpm nx run web:dev",
     "dev:api": "pnpm nx run api:dev",
+    "mock:up": "pnpm nx run mock:up",
+    "mock:migrate": "pnpm nx run mock:migrate",
+    "mock:down": "pnpm nx run mock:down",
     "generate:openapi": "pnpm nx run shared-openapi:generate",
     "check:web": "pnpm nx run web:check",
     "check:api": "pnpm nx run api:test"

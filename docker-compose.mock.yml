@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tsr-pg-postgres
+    environment:
+      POSTGRES_DB: tsr_pg
+      POSTGRES_USER: tsr_pg
+      POSTGRES_PASSWORD: tsr_pg
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tsr_pg -d tsr_pg"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  storage:
+    image: fsouza/fake-gcs-server:latest
+    container_name: tsr-pg-storage
+    command:
+      - "-scheme"
+      - "http"
+      - "-host"
+      - "0.0.0.0"
+      - "-port"
+      - "4443"
+      - "-public-host"
+      - "localhost:4443"
+    ports:
+      - "4443:4443"
+    volumes:
+      - storage_data:/data
+
+volumes:
+  postgres_data:
+  storage_data:

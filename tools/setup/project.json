@@ -1,0 +1,19 @@
+{
+  "name": "setup",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/setup",
+  "projectType": "application",
+  "targets": {
+    "deps": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "commands": [
+          "pnpm install",
+          "go -C apps/api mod download"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

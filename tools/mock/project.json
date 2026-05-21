@@ -1,0 +1,33 @@
+{
+  "name": "mock",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/mock",
+  "projectType": "application",
+  "targets": {
+    "up": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "commands": [
+          "docker compose -f docker-compose.mock.yml up -d postgres storage",
+          "go -C apps/api tool github.com/jackc/tern/v2 migrate --config migrations/tern.conf --migrations migrations"
+        ],
+        "parallel": false
+      }
+    },
+    "migrate": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "go -C apps/api tool github.com/jackc/tern/v2 migrate --config migrations/tern.conf --migrations migrations"
+      }
+    },
+    "down": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "docker compose -f docker-compose.mock.yml down"
+      }
+    }
+  }
+}
