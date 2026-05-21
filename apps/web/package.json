@@ -8,7 +8,15 @@
     "check": "npx nuxi typecheck"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^1.0.0",
     "nuxt": "^3.13.2",
+    "tailwind-merge": "^3.6.0",
     "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "tailwindcss": "^4.3.0"
   }
 }

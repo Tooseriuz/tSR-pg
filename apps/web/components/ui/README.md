@@ -1,3 +1,3 @@
 # ui
 
-Reserved for future shadcn/ui components.
+Local shadcn/ui-style components.
