@@ -1,0 +1,28 @@
+{
+  "name": "shared-openapi",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "shared/openapi",
+  "projectType": "library",
+  "targets": {
+    "generate:frontend": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec openapi-typescript shared/openapi/openapi.yaml --output shared/generated/frontend/index.ts"
+      }
+    },
+    "generate:backend": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "go tool oapi-codegen --config oapi-codegen.yaml ../../shared/openapi/openapi.yaml"
+      }
+    },
+    "generate": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["generate:frontend", "generate:backend"],
+      "options": {
+        "command": "echo OpenAPI generation complete"
+      }
+    }
+  }
+}

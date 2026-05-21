@@ -1,0 +1,21 @@
+{
+  "name": "tsr-pg",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "nx": "nx",
+    "dev:web": "pnpm nx run web:dev",
+    "dev:api": "pnpm nx run api:dev",
+    "generate:openapi": "pnpm nx run shared-openapi:generate",
+    "check:web": "pnpm nx run web:check",
+    "check:api": "pnpm nx run api:test"
+  },
+  "devDependencies": {
+    "@nx/nuxt": "22.7.2",
+    "@nx/vite": "22.7.2",
+    "nuxt": "^3.21.1",
+    "nx": "22.7.2",
+    "openapi-typescript": "7.13.0"
+  },
+  "dependencies": {}
+}

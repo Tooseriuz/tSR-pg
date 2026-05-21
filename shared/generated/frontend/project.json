@@ -1,0 +1,7 @@
+{
+  "name": "shared-generated-frontend",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "shared/generated/frontend",
+  "projectType": "library",
+  "implicitDependencies": ["shared-openapi"]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/api",
+  "projectType": "application",
+  "implicitDependencies": ["shared-openapi"],
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "dependsOn": [{ "projects": "shared-openapi", "target": "generate:backend" }],
+      "options": {
+        "cwd": "apps/api",
+        "command": "go run ./cmd/api"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "dependsOn": [{ "projects": "shared-openapi", "target": "generate:backend" }],
+      "options": {
+        "cwd": "apps/api",
+        "command": "go test ./..."
+      }
+    }
+  }
+}
