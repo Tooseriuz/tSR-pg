@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/web",
   "projectType": "application",
-  "implicitDependencies": ["shared-generated-frontend"],
+  "implicitDependencies": ["shared-openapi"],
   "targets": {
     "dev": {
       "executor": "nx:run-commands",
