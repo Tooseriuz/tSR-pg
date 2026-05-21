@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	httpadapter "github.com/tooseriuz/tsr-pg/apps/api/internal/adapters/http"
-	"github.com/tooseriuz/tsr-pg/apps/api/internal/generated/openapi"
+	"github.com/tooseriuz/tsr-pg/apps/api/internal/dto/openapi"
 )
 
 func TestHealthHandler(t *testing.T) {

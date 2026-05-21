@@ -5,9 +5,9 @@ import "testing"
 func TestHealthServiceCheck(t *testing.T) {
 	service := NewHealthService()
 
-	response := service.Check()
+	status := service.Check()
 
-	if response.Status != "ok" {
-		t.Fatalf("expected status ok, got %q", response.Status)
+	if status != "ok" {
+		t.Fatalf("expected status ok, got %q", status)
 	}
 }

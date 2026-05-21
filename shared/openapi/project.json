@@ -7,7 +7,7 @@
     "generate:frontend": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm exec openapi-typescript shared/openapi/openapi.yaml --output apps/web/types/generated/openapi/index.ts"
+        "command": "pnpm exec openapi-typescript shared/openapi/openapi.yaml --output apps/web/types/dto/openapi/index.ts"
       }
     },
     "generate:backend": {

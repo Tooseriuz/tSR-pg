@@ -1,4 +1,4 @@
-import type { components } from '../../types/generated/openapi'
+import type { components } from '../../types/dto/openapi'
 
 type HealthResponse = components['schemas']['HealthResponse']
 
