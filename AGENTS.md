@@ -1,5 +1,3 @@
-KEEP IT SIMPLE
-
 1. This is repo designed to be monorepo that include
   - monorepo
     - nx
