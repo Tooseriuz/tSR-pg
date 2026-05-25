@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ArrowRight, Github, Mail } from 'lucide-vue-next'
-import { blogTopics } from '../data/blogTopics'
+import { Mail } from '@lucide/vue'
+import githubIcon from '../assets/icons/github.svg'
 
 const isHeroCollapsed = ref(false)
 const heroRef = ref<HTMLElement | null>(null)
@@ -35,23 +35,33 @@ onMounted(() => {
 
 <template>
   <div
-    class="code-pattern min-h-screen scroll-smooth bg-background text-foreground"
+    class="min-h-screen scroll-smooth bg-background text-foreground "
   >
-    <header
-      class="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-background/90 px-6 backdrop-blur sm:px-8"
+    <section
+      id="top"
+      ref="heroRef"
+      class="flex min-h-[100dvh] flex-col p-6 pt-20 sm:p-8 sm:pt-24"
     >
-      <a
-        class="font-mono text-sm font-bold tracking-normal text-foreground transition duration-300"
-        :class="isHeroCollapsed ? 'opacity-100 translate-y-0' : 'pointer-events-none -translate-y-1 opacity-0'"
-        href="#top"
-        aria-label="Back to top"
-      >
-        too&lt;&ensp;&gt;seriuz
-      </a>
+      <main class="grid flex-1 place-content-center gap-5 text-center">
+        <h1
+          class="brand-wordmark m-0 flex select-none items-center justify-center whitespace-nowrap text-5xl font-black leading-none tracking-normal text-foreground sm:text-7xl lg:text-9xl"
+        >
+          <span>too</span>
+          <span class="mx-3 text-primary sm:mx-5 lg:mx-7">&lt;</span>
+          <span class="text-primary">&gt;</span>
+          <span class="ml-3 sm:ml-5 lg:ml-7">seriuz</span>
+        </h1>
+        <p
+          class="m-0 px-2.5 font-mono text-left select-none text-xs font-semibold tracking-[0.3em] text-muted-foreground sm:text-sm"
+          aria-label="Wasuphon Naksut"
+        >
+          <span aria-hidden="true">&gt;</span><span class="typing-name" aria-hidden="true">Wasuphon Naksut</span>
+        </p>
+      </main>
 
-      <div class="flex items-center gap-2">
+      <footer class="flex justify-center gap-2 pb-2 pt-6">
         <a
-          class="inline-flex size-10 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
+          class="inline-flex select-none size-10 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
           href="mailto:yimfrongs@gmail.com"
           aria-label="Email yimfrongs@gmail.com"
         >
@@ -59,85 +69,25 @@ onMounted(() => {
         </a>
 
         <a
-          class="inline-flex size-10 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
+          class="inline-flex select-none size-10 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
+          href="/cv.pdf"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="View CV"
+        >
+          <span class="font-mono text-xs font-bold tracking-normal" aria-hidden="true">CV</span>
+        </a>
+
+        <a
+          class="inline-flex select-none size-10 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
           href="https://github.com/tooseriuz"
           target="_blank"
           rel="noreferrer"
           aria-label="GitHub profile"
         >
-          <Github class="size-5" aria-hidden="true" />
-        </a>
-      </div>
-    </header>
-
-    <section
-      id="top"
-      ref="heroRef"
-      class="flex min-h-[100dvh] flex-col p-6 pt-20 sm:p-8 sm:pt-24"
-      aria-label="too seriuz landing page"
-    >
-      <main class="grid flex-1 place-content-center gap-4 text-center">
-        <h1
-          class="m-0 bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-5xl font-bold leading-[0.9] tracking-normal text-transparent sm:text-7xl lg:text-9xl"
-        >
-          too&lt;&ensp;&gt;seriuz
-        </h1>
-      </main>
-
-      <footer class="flex justify-center pb-2 pt-6">
-        <a
-          class="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-foreground transition hover:bg-surface active:-translate-y-[1px]"
-          href="#blog-topics"
-          aria-label="Scroll to blog topics"
-        >
-          read notes
+          <img class="size-5" :src="githubIcon" alt="" aria-hidden="true">
         </a>
       </footer>
-    </section>
-
-    <section
-      id="blog-topics"
-      class="border-t border-border bg-surface px-6 py-24 sm:px-8 sm:py-32"
-      aria-label="Blog topic placeholders"
-    >
-      <div class="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-        <div class="max-w-xl">
-          <p class="m-0 font-mono text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            blog index
-          </p>
-          <h2 class="mt-4 text-4xl font-semibold leading-tight tracking-normal text-foreground sm:text-5xl">
-            Working topics for future writing.
-          </h2>
-          <p class="mt-5 text-base leading-7 text-muted-foreground">
-            Placeholder cards for the themes I want to publish around: practical systems, focused interfaces, and notes from real delivery work.
-          </p>
-        </div>
-
-        <div class="grid gap-4 sm:grid-cols-2">
-          <NuxtLink
-            v-for="topic in blogTopics"
-            :key="topic.slug"
-            :to="`/notes/${topic.slug}`"
-            class="group grid min-h-56 rounded-lg border border-border bg-background p-6 text-left no-underline transition duration-200 hover:-translate-y-1 hover:shadow-soft active:-translate-y-[1px]"
-          >
-            <article class="grid h-full">
-              <p class="m-0 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                placeholder
-              </p>
-              <h3 class="mt-6 text-2xl font-semibold leading-tight tracking-normal text-foreground">
-                {{ topic.name }}
-              </h3>
-              <p class="mt-4 text-sm leading-6 text-muted-foreground">
-                {{ topic.description }}
-              </p>
-              <span class="mt-6 inline-flex items-center gap-2 self-end font-mono text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
-                Open note
-                <ArrowRight class="size-4 transition group-hover:translate-x-1" aria-hidden="true" />
-              </span>
-            </article>
-          </NuxtLink>
-        </div>
-      </div>
     </section>
   </div>
 </template>

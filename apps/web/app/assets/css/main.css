@@ -29,7 +29,54 @@
 }
 
 @layer utilities {
+  .brand-wordmark {
+    text-shadow:
+      0 1px 0 rgb(255 255 255 / 90%),
+      0 12px 28px rgb(17 17 17 / 12%);
+  }
+
+  .typing-name {
+    display: inline-block;
+    max-width: 23ch;
+    overflow: hidden;
+    border-right: 0.12em solid currentColor;
+    vertical-align: bottom;
+    white-space: nowrap;
+    animation:
+      typing-name 5.4s steps(15, end) infinite,
+      typing-caret 700ms step-end infinite;
+  }
+
   .code-pattern {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Ctext x='10' y='30' fill='%23787774' fill-opacity='.11' font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size='22' font-weight='700'%3E%26lt;%26gt;%3C/text%3E%3Ctext x='70' y='66' fill='%23787774' fill-opacity='.08' font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size='18' font-weight='700' transform='rotate(-12 70 66)'%3E%26lt;%26gt;%3C/text%3E%3C/svg%3E");
+  }
+}
+
+@keyframes typing-name {
+  0%,
+  8% {
+    max-width: 0;
+  }
+
+  38%,
+  92% {
+    max-width: 23ch;
+  }
+
+  100% {
+    max-width: 0;
+  }
+}
+
+@keyframes typing-caret {
+  50% {
+    border-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-name {
+    border-right: 0;
+    animation: none;
   }
 }

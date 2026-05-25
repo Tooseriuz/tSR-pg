@@ -22,4 +22,5 @@
   - Add unit tests on every services level for business logic
   - Add integretion tests on every handlers level for end to end test
   - Run lint then test then build to verify app successful
-3. In design work, make use of tailwindcss and shadcn/ui
+  - No need to run dev server to test
+3. In design work, make use of tailwindcss and shadcn/ui and ./agents/skills/design-taste-frontend
