@@ -7,6 +7,9 @@ const heroRef = ref<HTMLElement | null>(null)
 
 useHead({
   title: 'tooseriuz - software engineer',
+  meta: [
+    { name: 'description', content: 'tooseriuz, Wasuphon Naksut, software engineer' },
+  ],
   link: [
     { rel: 'icon', href: '/favicon.ico' },
   ],
