@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Mail } from '@lucide/vue'
+import cvUrl from '../assets/content/Frongs_CV.pdf'
 import githubIcon from '../assets/icons/github.svg'
 
 const isHeroCollapsed = ref(false)
@@ -70,7 +71,7 @@ onMounted(() => {
 
         <a
           class="inline-flex select-none size-10 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
-          href="/cv.pdf"
+          :href="cvUrl"
           target="_blank"
           rel="noreferrer"
           aria-label="View CV"
