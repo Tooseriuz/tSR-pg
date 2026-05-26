@@ -11,6 +11,7 @@
     "mock:migrate": "pnpm nx run mock:migrate",
     "mock:down": "pnpm nx run mock:down",
     "generate:openapi": "pnpm nx run shared-openapi:generate",
+    "build:web": "pnpm nx run web:build",
     "check:web": "pnpm nx run web:check",
     "check:api": "pnpm nx run api:test"
   },
