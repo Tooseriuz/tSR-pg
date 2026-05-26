@@ -68,8 +68,8 @@ onMounted(() => {
       <footer class="flex justify-center gap-2 pb-2 pt-6">
         <a
           class="inline-flex select-none size-10 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
-          href="mailto:yimfrongs@gmail.com"
-          aria-label="Email yimfrongs@gmail.com"
+          href="mailto:hello@tooseriuz.com"
+          aria-label="Email hello@tooseriuz.com"
         >
           <Mail class="size-5" aria-hidden="true" />
         </a>
