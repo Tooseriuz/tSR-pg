@@ -6,7 +6,7 @@ const isHeroCollapsed = ref(false)
 const heroRef = ref<HTMLElement | null>(null)
 
 useHead({
-  title: 'Tooseriuz - Wasuphon Naksut - Software Engineer',
+  title: 'tooseriuz - software engineer',
   link: [
     { rel: 'icon', href: '/favicon.ico' },
   ],
