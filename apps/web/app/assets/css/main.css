@@ -35,6 +35,15 @@
       0 12px 28px rgb(17 17 17 / 12%);
   }
 
+  .hero-wordmark {
+    animation: hero-fade-up 800ms ease-out both;
+  }
+
+  .hero-typewriter {
+    opacity: 0;
+    animation: typewriter-reveal 1ms step-end 800ms both;
+  }
+
   .terminal-line {
     display: block;
     min-height: 1lh;
@@ -46,12 +55,12 @@
   }
 
   .typing-prompt-name {
-    animation: typing-prompt-name 9s step-end infinite;
+    animation: typing-prompt-name 9s step-end 800ms infinite;
   }
 
   .typing-prompt-role {
     opacity: 0;
-    animation: typing-prompt-role 9s step-end infinite;
+    animation: typing-prompt-role 9s step-end 800ms infinite;
   }
 
   .typing-name,
@@ -66,18 +75,36 @@
 
   .typing-name {
     animation:
-      typing-name 9s steps(15, end) infinite,
-      typing-caret-name 9s step-end infinite;
+      typing-name 9s steps(15, end) 800ms infinite,
+      typing-caret-name 9s step-end 800ms infinite;
   }
 
   .typing-role {
     animation:
-      typing-role 9s steps(17, end) infinite,
-      typing-caret-role 9s step-end infinite;
+      typing-role 9s steps(17, end) 800ms infinite,
+      typing-caret-role 9s step-end 800ms infinite;
   }
 
   .code-pattern {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Ctext x='10' y='30' fill='%23787774' fill-opacity='.11' font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size='22' font-weight='700'%3E%26lt;%26gt;%3C/text%3E%3Ctext x='70' y='66' fill='%23787774' fill-opacity='.08' font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size='18' font-weight='700' transform='rotate(-12 70 66)'%3E%26lt;%26gt;%3C/text%3E%3C/svg%3E");
+  }
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typewriter-reveal {
+  to {
+    opacity: 1;
   }
 }
 
@@ -185,6 +212,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-wordmark {
+    animation: none;
+  }
+
+  .hero-typewriter {
+    opacity: 1;
+    animation: none;
+  }
+
   .typing-prompt-name {
     opacity: 0;
     animation: none;

@@ -51,7 +51,7 @@ onMounted(() => {
     >
       <main class="grid flex-1 place-content-center gap-5 text-center">
         <h1
-          class="brand-wordmark m-0 flex select-none items-center justify-center whitespace-nowrap text-5xl font-black leading-none tracking-normal text-foreground sm:text-7xl lg:text-9xl"
+          class="brand-wordmark hero-wordmark m-0 flex select-none items-center justify-center whitespace-nowrap text-5xl font-black leading-none tracking-normal text-foreground sm:text-7xl lg:text-9xl"
         >
           <span>too</span>
           <span class="mx-3 text-primary sm:mx-5 lg:mx-7">&lt;</span>
@@ -59,7 +59,7 @@ onMounted(() => {
           <span class="ml-3 sm:ml-5 lg:ml-7">seriuz</span>
         </h1>
         <p
-          class="m-0 grid gap-1 px-2.5 text-left font-mono text-xs font-semibold tracking-[0.3em] text-muted-foreground sm:text-sm"
+          class="hero-typewriter m-0 grid gap-1 px-2.5 text-left font-mono text-xs font-semibold tracking-[0.3em] text-muted-foreground sm:text-sm"
           aria-label="Wasuphon Naksut, software engineer"
         >
           <span class="terminal-line" aria-hidden="true">
