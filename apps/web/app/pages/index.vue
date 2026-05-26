@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { Mail } from '@lucide/vue'
-import cvUrl from '../assets/content/Frongs_CV.pdf'
 import githubIcon from '../assets/icons/github.svg'
 
 const isHeroCollapsed = ref(false)
 const heroRef = ref<HTMLElement | null>(null)
+
+useHead({
+  link: [
+    { rel: 'icon', href: '/favicon.ico' },
+  ],
+})
 
 onMounted(() => {
   const hero = heroRef.value
@@ -49,7 +54,7 @@ onMounted(() => {
         >
           <span>too</span>
           <span class="mx-3 text-primary sm:mx-5 lg:mx-7">&lt;</span>
-          <span class="text-primary">&gt;</span>
+          <span class="text-accent">&gt;</span>
           <span class="ml-3 sm:ml-5 lg:ml-7">seriuz</span>
         </h1>
         <p
@@ -71,7 +76,7 @@ onMounted(() => {
 
         <a
           class="inline-flex select-none size-10 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
-          :href="cvUrl"
+          href="/cv.pdf"
           target="_blank"
           rel="noreferrer"
           aria-label="View CV"
