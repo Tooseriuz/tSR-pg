@@ -35,16 +35,45 @@
       0 12px 28px rgb(17 17 17 / 12%);
   }
 
-  .typing-name {
+  .terminal-line {
+    display: block;
+    min-height: 1lh;
+  }
+
+  .typing-prompt-name,
+  .typing-prompt-role {
     display: inline-block;
-    max-width: 23ch;
+  }
+
+  .typing-prompt-name {
+    animation: typing-prompt-name 9s step-end infinite;
+  }
+
+  .typing-prompt-role {
+    opacity: 0;
+    animation: typing-prompt-role 9s step-end infinite;
+  }
+
+  .typing-name,
+  .typing-role {
+    display: inline-block;
+    max-width: 0;
     overflow: hidden;
     border-right: 0.12em solid currentColor;
     vertical-align: bottom;
     white-space: nowrap;
+  }
+
+  .typing-name {
     animation:
-      typing-name 5.4s steps(15, end) infinite,
-      typing-caret 700ms step-end infinite;
+      typing-name 9s steps(15, end) infinite,
+      typing-caret-name 9s step-end infinite;
+  }
+
+  .typing-role {
+    animation:
+      typing-role 9s steps(17, end) infinite,
+      typing-caret-role 9s step-end infinite;
   }
 
   .code-pattern {
@@ -52,30 +81,123 @@
   }
 }
 
-@keyframes typing-name {
+@keyframes typing-prompt-name {
   0%,
-  8% {
-    max-width: 0;
-  }
-
-  38%,
-  92% {
-    max-width: 23ch;
-  }
-
+  31%,
+  72%,
   100% {
-    max-width: 0;
+    opacity: 1;
+  }
+
+  32%,
+  71% {
+    opacity: 0;
   }
 }
 
-@keyframes typing-caret {
-  50% {
+@keyframes typing-prompt-role {
+  0%,
+  31%,
+  72%,
+  100% {
+    opacity: 0;
+  }
+
+  32%,
+  71% {
+    opacity: 1;
+  }
+}
+
+@keyframes typing-name {
+  0%,
+  7%,
+  80% {
+    max-width: 0;
+  }
+
+  28%,
+  72% {
+    max-width: 23ch;
+  }
+}
+
+@keyframes typing-role {
+  0%,
+  31%,
+  72%,
+  100% {
+    max-width: 0;
+  }
+
+  54%,
+  62% {
+    max-width: 26ch;
+  }
+}
+
+@keyframes typing-caret-name {
+  0%,
+  8%,
+  16%,
+  24%,
+  72%,
+  80%,
+  88%,
+  96% {
+    border-color: currentColor;
+  }
+
+  4%,
+  12%,
+  20%,
+  28%,
+  32%,
+  71%,
+  76%,
+  84%,
+  92%,
+  100% {
     border-color: transparent;
   }
 }
 
+@keyframes typing-caret-role {
+  0%,
+  31%,
+  36%,
+  44%,
+  52%,
+  60%,
+  68%,
+  72%,
+  100% {
+    border-color: transparent;
+  }
+
+  32%,
+  40%,
+  48%,
+  56%,
+  64% {
+    border-color: currentColor;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .typing-name {
+  .typing-prompt-name {
+    opacity: 0;
+    animation: none;
+  }
+
+  .typing-prompt-role {
+    opacity: 1;
+    animation: none;
+  }
+
+  .typing-name,
+  .typing-role {
+    max-width: none;
     border-right: 0;
     animation: none;
   }

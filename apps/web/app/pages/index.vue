@@ -59,10 +59,15 @@ onMounted(() => {
           <span class="ml-3 sm:ml-5 lg:ml-7">seriuz</span>
         </h1>
         <p
-          class="m-0 px-2.5 font-mono text-left select-none text-xs font-semibold tracking-[0.3em] text-muted-foreground sm:text-sm"
-          aria-label="Wasuphon Naksut"
+          class="m-0 grid gap-1 px-2.5 text-left font-mono text-xs font-semibold tracking-[0.3em] text-muted-foreground sm:text-sm"
+          aria-label="Wasuphon Naksut, software engineer"
         >
-          <span aria-hidden="true">&gt;</span><span class="typing-name" aria-hidden="true">Wasuphon Naksut</span>
+          <span class="terminal-line" aria-hidden="true">
+            <span class="typing-prompt-name">&gt;</span><span class="typing-name">Wasuphon Naksut</span>
+          </span>
+          <span class="terminal-line" aria-hidden="true">
+            <span class="typing-prompt-role">&gt;</span><span class="typing-role">software engineer</span>
+          </span>
         </p>
       </main>
 
