@@ -66,10 +66,10 @@ onMounted(() => {
           aria-label="Wasuphon Naksut, software engineer"
         >
           <span class="terminal-line" aria-hidden="true">
-            <span class="typing-prompt-name">&gt;</span><span class="typing-name">Wasuphon Naksut</span>
+            <span class="typing-prompt-name text-accent">&gt;</span><span class="typing-name">Wasuphon Naksut</span>
           </span>
           <span class="terminal-line" aria-hidden="true">
-            <span class="typing-prompt-role">&gt;</span><span class="typing-role">software engineer</span>
+            <span class="typing-prompt-role text-accent">&gt;</span><span class="typing-role">software engineer</span>
           </span>
         </p>
       </main>
