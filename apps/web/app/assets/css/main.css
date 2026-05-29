@@ -92,6 +92,71 @@
   .code-pattern {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'%3E%3Ctext x='10' y='30' fill='%23787774' fill-opacity='.11' font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size='22' font-weight='700'%3E%26lt;%26gt;%3C/text%3E%3Ctext x='70' y='66' fill='%23787774' fill-opacity='.08' font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size='18' font-weight='700' transform='rotate(-12 70 66)'%3E%26lt;%26gt;%3C/text%3E%3C/svg%3E");
   }
+
+  .journal-content {
+    display: grid;
+    gap: 1.15rem;
+    color: var(--color-foreground);
+    font-size: 1.0625rem;
+    line-height: 1.8;
+  }
+
+  .journal-content > * {
+    margin: 0;
+  }
+
+  .journal-content h2,
+  .journal-content h3,
+  .journal-content h4 {
+    margin-top: 1.5rem;
+    color: var(--color-foreground);
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+
+  .journal-content h2 {
+    font-size: 1.75rem;
+  }
+
+  .journal-content h3,
+  .journal-content h4 {
+    font-size: 1.35rem;
+  }
+
+  .journal-content p,
+  .journal-content li {
+    color: var(--color-muted-foreground);
+  }
+
+  .journal-content ul {
+    display: grid;
+    gap: 0.55rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .journal-content code {
+    border-radius: 0.25rem;
+    background: var(--color-surface);
+    padding: 0.1rem 0.35rem;
+    color: var(--color-foreground);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .journal-content pre {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    background: var(--color-surface);
+    padding: 1rem;
+  }
+
+  .journal-content pre code {
+    background: transparent;
+    padding: 0;
+  }
 }
 
 @keyframes hero-fade-up {

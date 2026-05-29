@@ -38,21 +38,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/journey": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create journey */
+        post: operations["createJourney"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/journey/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get journey */
+        get: operations["getJourney"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin-verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Verify admin session */
+        get: operations["getAdminVerify"];
+        put?: never;
+        /** Verify admin token */
+        post: operations["verifyAdmin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AdminVerifyRequest: {
+            token: string;
+        };
+        CreateJourneyRequest: {
+            name: string;
+            location: string;
+            thumbnail?: string | null;
+            content: string;
+            highlight: boolean;
+        };
+        CreateJourneyResponse: {
+            /** Format: int64 */
+            id: number;
+        };
         HealthResponse: {
             /** @example ok */
             status: string;
         };
         Journey: {
+            /** Format: int64 */
+            id: number;
             name: string;
             timestamp: string;
             location: string;
-            thumbnail: string;
+            thumbnail: string | null;
         };
         JourneysResponse: components["schemas"]["Journey"][];
+        JourneyContent: {
+            name: string;
+            timestamp: string;
+            content: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -99,6 +172,127 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["JourneysResponse"];
                 };
+            };
+        };
+    };
+    createJourney: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateJourneyRequest"];
+            };
+        };
+        responses: {
+            /** @description Created journey */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateJourneyResponse"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid admin token */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getJourney: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Journey */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JourneyContent"];
+                };
+            };
+            /** @description Journey not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getAdminVerify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Admin session accepted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid admin session */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    verifyAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminVerifyRequest"];
+            };
+        };
+        responses: {
+            /** @description Admin token accepted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid admin token */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

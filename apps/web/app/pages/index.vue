@@ -13,12 +13,13 @@ interface JourneyPoint {
 }
 
 interface Journey {
+  id: number
   year: JourneyYear
   month: JourneyMonth
   topic: string
   place: string
   date: string
-  thumbnail: string
+  thumbnail: string | null
 }
 
 const isHeroCollapsed = ref(false)
@@ -42,6 +43,7 @@ const journeys = computed<Journey[]>(() =>
     const month = monthFormatter.format(timestamp) as JourneyMonth
 
     return {
+      id: journey.id,
       year,
       month,
       topic: journey.name,
@@ -398,9 +400,10 @@ onUnmounted(() => {
           v-if="hasJourneys"
           class="grid gap-4 sm:grid-cols-2"
         >
-          <article
+          <NuxtLink
             v-for="(journey, index) in visibleJourneys"
             :key="`${selectedJourneyYear ?? 'highlight'}-${journey.year}-${journey.topic}`"
+            :to="`/journey/${journey.id}`"
             class="group overflow-hidden rounded-md border border-border bg-background shadow-soft transition duration-300 hover:-translate-y-1 hover:border-primary/40"
             :class="[
               index === 0 ? 'sm:row-span-2' : '',
@@ -412,10 +415,16 @@ onUnmounted(() => {
               :class="index === 0 ? 'aspect-[4/5]' : 'aspect-[4/3]'"
             >
               <img
+                v-if="journey.thumbnail"
                 class="size-full object-cover grayscale transition duration-500 group-hover:scale-[1.04] group-hover:grayscale-0"
                 :src="journey.thumbnail"
                 :alt="journey.topic"
               >
+              <div
+                v-else
+                class="code-pattern size-full bg-surface"
+                aria-hidden="true"
+              />
               <div class="absolute inset-x-0 top-0 flex items-center justify-between p-3">
                 <span class="rounded-sm bg-background/90 px-2 py-1 font-mono text-[11px] font-bold text-foreground">
                   {{ journey.year }}
@@ -445,7 +454,7 @@ onUnmounted(() => {
                 </div>
               </dl>
             </div>
-          </article>
+          </NuxtLink>
         </div>
         <p
           v-else
