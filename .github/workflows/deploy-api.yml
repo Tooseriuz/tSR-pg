@@ -55,6 +55,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_SSL_ENABLED: ${{ secrets.DB_SSL_ENABLED }}
           DB_PORT: ${{ secrets.DB_PORT }}
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
         run: |
           gcloud run deploy "${CLOUD_RUN_SERVICE}" \
             --image "${GAR_LOCATION}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${GAR_REPOSITORY}/${IMAGE_NAME}:${GITHUB_SHA}" \
