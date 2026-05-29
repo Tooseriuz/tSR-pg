@@ -44,6 +44,10 @@
     animation: typewriter-reveal 1ms step-end 800ms both;
   }
 
+  .scroll-cue {
+    animation: scroll-cue-bounce 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s infinite;
+  }
+
   .terminal-line {
     display: block;
     min-height: 1lh;
@@ -105,6 +109,17 @@
 @keyframes typewriter-reveal {
   to {
     opacity: 1;
+  }
+}
+
+@keyframes scroll-cue-bounce {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  45% {
+    transform: translateX(-50%) translateY(10px);
   }
 }
 
@@ -218,6 +233,10 @@
 
   .hero-typewriter {
     opacity: 1;
+    animation: none;
+  }
+
+  .scroll-cue {
     animation: none;
   }
 
