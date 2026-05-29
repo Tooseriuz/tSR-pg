@@ -1,8 +1,22 @@
-# Terraform placeholder
+# Terraform
 
-This directory contains a minimal starter layout for:
+This directory manages:
 
-- Cloud Run API deployment
-- Artifact Registry for container images
-- GitHub Actions OIDC authentication
-- Secret Manager wiring
+- Cloud Run API service: `tooseriuzdotcom-api`
+- Artifact Registry Docker repository: `tooseriuzdotcom-ar`
+- GitHub Actions OIDC for deploys from `Tooseriuz/tSR-pg`
+
+Secret Manager is intentionally not enabled yet.
+
+## Apply prod
+
+```sh
+cd infra/terraform/envs/prod
+terraform init
+terraform apply -var="project_id=<gcp-project-id>"
+```
+
+The GitHub Actions workflow expects these repository variables:
+
+- `GCP_PROJECT_ID`
+- `GCP_PROJECT_NUMBER`

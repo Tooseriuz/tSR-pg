@@ -16,6 +16,7 @@ pkg/
 
 # Terraform
 .terraform/
+*.hcl
 *.tfstate
 *.tfstate.*
 crash.log
