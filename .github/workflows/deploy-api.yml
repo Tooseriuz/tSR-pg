@@ -56,10 +56,9 @@ jobs:
           DB_SSL_ENABLED: ${{ secrets.DB_SSL_ENABLED }}
           DB_PORT: ${{ secrets.DB_PORT }}
           ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-          NUXT_API_BASE_URL: ${{ secrets.NUXT_API_BASE_URL }}
         run: |
           gcloud run deploy "${CLOUD_RUN_SERVICE}" \
             --image "${GAR_LOCATION}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${GAR_REPOSITORY}/${IMAGE_NAME}:${GITHUB_SHA}" \
             --region "${CLOUD_RUN_REGION}" \
             --project "${{ vars.GCP_PROJECT_ID }}" \
-            --set-env-vars "DB_NAME=${DB_NAME},DB_HOST=${DB_HOST},DB_USER=${DB_USER},DB_PASSWORD=${DB_PASSWORD},DB_SSL_ENABLED=${DB_SSL_ENABLED},DB_PORT=${DB_PORT},ADMIN_TOKEN=${ADMIN_TOKEN},NUXT_API_BASE_URL=${NUXT_API_BASE_URL}"
+            --set-env-vars "DB_NAME=${DB_NAME},DB_HOST=${DB_HOST},DB_USER=${DB_USER},DB_PASSWORD=${DB_PASSWORD},DB_SSL_ENABLED=${DB_SSL_ENABLED},DB_PORT=${DB_PORT},ADMIN_TOKEN=${ADMIN_TOKEN}"

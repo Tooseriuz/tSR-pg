@@ -79,11 +79,10 @@ async function verifyToken() {
 
   isVerifying.value = true
   try {
-    const response = await $fetch.raw('/api/admin-verify', {
+    await $fetch('/api/admin-verify', {
       method: 'POST',
       body: { token },
     })
-    console.info('[admin-verify] API base URL:', response.headers.get('x-api-base-url'))
     isVerified.value = true
     tokenInput.value = ''
   }
