@@ -10,6 +10,9 @@ tmp/
 .pnpm-store
 .tmp
 
+# backend
+/apps/api/.env
+
 # Go
 bin/
 pkg/

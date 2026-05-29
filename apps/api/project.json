@@ -20,6 +20,14 @@
         "cwd": "apps/api",
         "command": "go test ./..."
       }
+    },
+    "migrate": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "cwd": "apps/api",
+        "command": "set -a && . ./.env && set +a && go tool github.com/jackc/tern/v2 migrate --config migrations/tern.conf --migrations migrations"
+      }
     }
   }
 }
