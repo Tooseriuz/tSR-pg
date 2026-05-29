@@ -5,7 +5,7 @@ type AdminVerifyRequest = components['schemas']['AdminVerifyRequest']
 export default defineEventHandler(async (event) => {
   const { apiBaseUrl } = useRuntimeConfig()
   const body = await readBody<AdminVerifyRequest>(event)
-
+  console.log(apiBaseUrl, body)
   const response = await $fetch.raw('/admin-verify', {
     baseURL: apiBaseUrl,
     method: 'POST',
