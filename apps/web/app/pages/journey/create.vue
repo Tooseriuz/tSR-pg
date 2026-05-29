@@ -9,6 +9,7 @@ const router = useRouter()
 const contentInput = ref<HTMLTextAreaElement | null>(null)
 const tokenInput = ref('')
 const name = ref('')
+const timestamp = ref(new Date().toISOString().slice(0, 10))
 const location = ref('')
 const content = ref('')
 const highlight = ref(false)
@@ -24,15 +25,18 @@ const dateFormatter = new Intl.DateTimeFormat('en', {
   timeZone: 'UTC',
 })
 const trimmedName = computed(() => name.value.trim())
+const trimmedTimestamp = computed(() => timestamp.value.trim())
 const trimmedLocation = computed(() => location.value.trim())
 const trimmedContent = computed(() => content.value.trim())
 const isNameReady = computed(() => trimmedName.value.length > 0)
+const isTimestampReady = computed(() => trimmedTimestamp.value.length > 0)
 const isLocationReady = computed(() => trimmedLocation.value.length > 0)
 const isContentReady = computed(() => trimmedContent.value.length > 0)
-const canSubmit = computed(() => isVerified.value && isNameReady.value && isLocationReady.value && isContentReady.value && !isSubmitting.value)
+const canSubmit = computed(() => isVerified.value && isNameReady.value && isTimestampReady.value && isLocationReady.value && isContentReady.value && !isSubmitting.value)
 const renderedPreview = computed(() => renderMarkdown(trimmedContent.value))
 const hasPreview = computed(() => isNameReady.value || isContentReady.value)
-const previewDate = computed(() => dateFormatter.format(new Date()))
+const previewHappenedOnDate = computed(() => formatDate(trimmedTimestamp.value))
+const previewPostedOnDate = computed(() => dateFormatter.format(new Date()))
 
 useHead({
   title: 'create journey - tooseriuz',
@@ -69,6 +73,14 @@ function resizeContentInput() {
   input.style.height = `${input.scrollHeight}px`
 }
 
+function formatDate(value: string) {
+  if (!value) {
+    return ''
+  }
+
+  return dateFormatter.format(new Date(`${value}T00:00:00.000Z`))
+}
+
 async function verifyToken() {
   tokenError.value = ''
   const token = tokenInput.value.trim()
@@ -98,13 +110,14 @@ async function submitJourney() {
   submitError.value = ''
   const request: CreateJourneyRequest = {
     name: trimmedName.value,
+    timestamp: trimmedTimestamp.value,
     location: trimmedLocation.value,
     content: trimmedContent.value,
     highlight: highlight.value,
   }
 
-  if (!request.name || !request.location || !request.content) {
-    submitError.value = 'Journey name, location, and content are required.'
+  if (!request.name || !request.timestamp || !request.location || !request.content) {
+    submitError.value = 'Journey name, date, location, and content are required.'
     return
   }
 
@@ -269,6 +282,19 @@ function renderMarkdown(value: string) {
 
           <div class="grid gap-2 rounded-lg border border-border bg-background p-4 shadow-soft">
             <div class="flex items-center justify-between gap-3">
+              <label class="text-sm font-bold text-foreground" for="journey-timestamp">when</label>
+            </div>
+            <input
+              id="journey-timestamp"
+              v-model="timestamp"
+              class="min-h-12 rounded-md border border-border bg-surface px-4 text-base leading-6 outline-none transition placeholder:text-muted-foreground focus:border-primary focus:bg-background"
+              type="date"
+              :disabled="!isVerified || isSubmitting"
+            >
+          </div>
+
+          <div class="grid gap-2 rounded-lg border border-border bg-background p-4 shadow-soft">
+            <div class="flex items-center justify-between gap-3">
               <label class="text-sm font-bold text-foreground" for="journey-location">location</label>
             </div>
             <input
@@ -312,9 +338,16 @@ function renderMarkdown(value: string) {
               <h1 class="m-0 max-w-[18ch] text-4xl font-black leading-tight tracking-normal text-foreground sm:text-5xl">
                 {{ trimmedName || 'Untitled journey' }}
               </h1>
-              <p class="m-0 font-mono text-xs font-bold uppercase tracking-[0.28em] text-muted-foreground">
-                {{ previewDate }}
-              </p>
+              <dl class="m-0 flex flex-wrap justify-center gap-x-5 gap-y-2 font-mono text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                <div class="flex items-center gap-2">
+                  <dt>happened on</dt>
+                  <dd class="m-0 text-foreground">{{ previewHappenedOnDate }}</dd>
+                </div>
+                <div class="flex items-center gap-2">
+                  <dt>posted on</dt>
+                  <dd class="m-0 text-foreground">{{ previewPostedOnDate }}</dd>
+                </div>
+              </dl>
             </header>
 
             <div v-if="isContentReady" class="journal-content" v-html="renderedPreview" />
@@ -373,7 +406,7 @@ function renderMarkdown(value: string) {
             </button>
           </div>
           <p class="m-0 text-right text-xs font-semibold leading-5 text-muted-foreground">
-            {{ isVerified ? 'Title, location, and content are required before submit.' : 'Verify the admin token to unlock writing.' }}
+            {{ isVerified ? 'Title, date, location, and content are required before submit.' : 'Verify the admin token to unlock writing.' }}
           </p>
         </div>
       </section>

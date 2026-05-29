@@ -15,6 +15,7 @@ type CreateJourneyRequest struct {
 	Location  string  `json:"location"`
 	Name      string  `json:"name"`
 	Thumbnail *string `json:"thumbnail,omitempty"`
+	Timestamp string  `json:"timestamp"`
 }
 
 // CreateJourneyResponse defines model for CreateJourneyResponse.
@@ -39,6 +40,7 @@ type Journey struct {
 // JourneyContent defines model for JourneyContent.
 type JourneyContent struct {
 	Content   string `json:"content"`
+	CreatedAt string `json:"created_at"`
 	Name      string `json:"name"`
 	Timestamp string `json:"timestamp"`
 }

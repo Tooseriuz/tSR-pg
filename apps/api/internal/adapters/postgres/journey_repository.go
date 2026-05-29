@@ -49,11 +49,11 @@ func (r JourneyRepository) List(ctx context.Context) ([]domain.Journey, error) {
 func (r JourneyRepository) Get(ctx context.Context, id int64) (domain.JourneyContent, error) {
 	var journey domain.JourneyContent
 	err := r.pool.QueryRow(ctx, `
-		select j.name, j.timestamp, jc.content
+		select j.name, j.timestamp, j.created_at, jc.content
 		from journeys j
 		join journey_contents jc on jc.journey_id = j.id
 		where j.id = $1
-	`, id).Scan(&journey.Name, &journey.Timestamp, &journey.Content)
+	`, id).Scan(&journey.Name, &journey.Timestamp, &journey.CreatedAt, &journey.Content)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.JourneyContent{}, service.ErrJourneyNotFound
 	}
@@ -74,9 +74,9 @@ func (r JourneyRepository) Create(ctx context.Context, journey domain.CreateJour
 	var id int64
 	err = tx.QueryRow(ctx, `
 		insert into journeys (name, timestamp, location, thumbnail, highlight)
-		values ($1, current_date, $2, $3, $4)
+		values ($1, $2, $3, $4, $5)
 		returning id
-	`, journey.Name, journey.Location, journey.Thumbnail, journey.Highlight).Scan(&id)
+	`, journey.Name, journey.Timestamp, journey.Location, journey.Thumbnail, journey.Highlight).Scan(&id)
 	if err != nil {
 		return 0, err
 	}

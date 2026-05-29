@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   devtools: { enabled: true },
   runtimeConfig: {
-    apiBaseUrl: 'http://localhost:8080',
+    apiBaseUrl: process.env.NUXT_API_BASE_URL || 'http://localhost:8080',
   },
   vite: {
     plugins: [tailwindcss()],

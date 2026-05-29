@@ -60,6 +60,7 @@ func TestJourneyServiceGet(t *testing.T) {
 		journeyContent: domain.JourneyContent{
 			Name:      "Build the journey endpoint",
 			Timestamp: timestamp,
+			CreatedAt: timestamp,
 			Content:   "# Start",
 		},
 	})
@@ -79,6 +80,7 @@ func TestJourneyServiceCreate(t *testing.T) {
 
 	id, err := service.Create(context.Background(), domain.CreateJourney{
 		Name:      " Build the journey endpoint ",
+		Timestamp: time.Date(2026, time.May, 29, 0, 0, 0, 0, time.UTC),
 		Location:  " Bangkok ",
 		Content:   " # Start ",
 		Highlight: true,

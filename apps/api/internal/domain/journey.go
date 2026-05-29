@@ -13,11 +13,13 @@ type Journey struct {
 type JourneyContent struct {
 	Name      string
 	Timestamp time.Time
+	CreatedAt time.Time
 	Content   string
 }
 
 type CreateJourney struct {
 	Name      string
+	Timestamp time.Time
 	Location  string
 	Thumbnail *string
 	Content   string

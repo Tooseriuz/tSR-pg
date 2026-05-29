@@ -45,7 +45,7 @@ func (s JourneyService) Create(ctx context.Context, journey domain.CreateJourney
 			journey.Thumbnail = &trimmedThumbnail
 		}
 	}
-	if journey.Name == "" || journey.Location == "" || journey.Content == "" {
+	if journey.Name == "" || journey.Location == "" || journey.Content == "" || journey.Timestamp.IsZero() {
 		return 0, ErrInvalidJourney
 	}
 

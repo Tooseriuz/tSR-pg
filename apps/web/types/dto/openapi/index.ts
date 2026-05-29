@@ -99,6 +99,7 @@ export interface components {
         };
         CreateJourneyRequest: {
             name: string;
+            timestamp: string;
             location: string;
             thumbnail?: string | null;
             content: string;
@@ -124,6 +125,7 @@ export interface components {
         JourneyContent: {
             name: string;
             timestamp: string;
+            created_at: string;
             content: string;
         };
     };

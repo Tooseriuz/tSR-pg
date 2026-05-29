@@ -15,13 +15,8 @@ const dateFormatter = new Intl.DateTimeFormat('en', {
 
 const { data: journey, error } = await useFetch<JourneyContent>(() => `/api/journey/${id.value}`)
 
-const formattedDate = computed(() => {
-  if (!journey.value?.timestamp) {
-    return ''
-  }
-
-  return dateFormatter.format(new Date(`${journey.value.timestamp}T00:00:00.000Z`))
-})
+const happenedOnDate = computed(() => formatDate(journey.value?.timestamp))
+const postedOnDate = computed(() => formatDate(journey.value?.created_at))
 
 const renderedContent = computed(() => renderMarkdown(journey.value?.content ?? ''))
 
@@ -39,6 +34,14 @@ function escapeHtml(value: string) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;')
+}
+
+function formatDate(value?: string) {
+  if (!value) {
+    return ''
+  }
+
+  return dateFormatter.format(new Date(`${value}T00:00:00.000Z`))
 }
 
 function renderInlineMarkdown(value: string) {
@@ -150,9 +153,16 @@ function renderMarkdown(value: string) {
           <h1 class="m-0 max-w-[18ch] text-4xl font-black leading-tight tracking-normal text-foreground sm:text-5xl">
             {{ journey.name }}
           </h1>
-          <p class="m-0 font-mono text-xs font-bold uppercase tracking-[0.28em] text-muted-foreground">
-            {{ formattedDate }}
-          </p>
+          <dl class="m-0 flex flex-wrap justify-center gap-x-5 gap-y-2 font-mono text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            <div class="flex items-center gap-2">
+              <dt>happened on</dt>
+              <dd class="m-0 text-foreground">{{ happenedOnDate }}</dd>
+            </div>
+            <div class="flex items-center gap-2">
+              <dt>posted on</dt>
+              <dd class="m-0 text-foreground">{{ postedOnDate }}</dd>
+            </div>
+          </dl>
         </header>
 
         <div class="journal-content" v-html="renderedContent" />

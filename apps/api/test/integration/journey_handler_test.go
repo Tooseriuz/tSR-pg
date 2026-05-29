@@ -94,7 +94,7 @@ func TestCreateJourneyHandler(t *testing.T) {
 	router.ServeHTTP(verifyRecorder, verifyRequest)
 
 	recorder := httptest.NewRecorder()
-	request := httptest.NewRequest(http.MethodPost, "/journey", bytes.NewBufferString(`{"name":"Build the journey endpoint","location":"Bangkok","content":"# Start","highlight":true}`))
+	request := httptest.NewRequest(http.MethodPost, "/journey", bytes.NewBufferString(`{"name":"Build the journey endpoint","timestamp":"2026-05-29","location":"Bangkok","content":"# Start","highlight":true}`))
 	request.Header.Set("Content-Type", "application/json")
 	for _, cookie := range verifyRecorder.Result().Cookies() {
 		request.AddCookie(cookie)
@@ -119,7 +119,7 @@ func TestCreateJourneyHandler(t *testing.T) {
 func TestCreateJourneyHandlerRequiresAdminSession(t *testing.T) {
 	router := httpadapter.NewRouter(httpadapter.WithAdminToken("secret-token"))
 	recorder := httptest.NewRecorder()
-	request := httptest.NewRequest(http.MethodPost, "/journey", bytes.NewBufferString(`{"name":"Build the journey endpoint","location":"Bangkok","content":"# Start","highlight":true}`))
+	request := httptest.NewRequest(http.MethodPost, "/journey", bytes.NewBufferString(`{"name":"Build the journey endpoint","timestamp":"2026-05-29","location":"Bangkok","content":"# Start","highlight":true}`))
 	request.Header.Set("Content-Type", "application/json")
 
 	router.ServeHTTP(recorder, request)
@@ -151,5 +151,9 @@ func TestGetJourneyHandler(t *testing.T) {
 
 	if response.Content == "" {
 		t.Fatal("expected journey content")
+	}
+
+	if response.CreatedAt == "" {
+		t.Fatal("expected journey posted date")
 	}
 }

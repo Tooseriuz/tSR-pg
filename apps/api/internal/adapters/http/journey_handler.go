@@ -52,6 +52,7 @@ func (r *memoryJourneyRepository) Get(_ context.Context, id int64) (domain.Journ
 			return domain.JourneyContent{
 				Name:      journey.Name,
 				Timestamp: journey.Timestamp,
+				CreatedAt: journey.Timestamp,
 				Content:   "# Remote setup\n\nSmall production habits started from a compact desk in Bangkok.",
 			}, nil
 		}
@@ -65,7 +66,7 @@ func (r *memoryJourneyRepository) Create(_ context.Context, journey domain.Creat
 	r.journeys = append(r.journeys, domain.Journey{
 		ID:        id,
 		Name:      journey.Name,
-		Timestamp: time.Now().UTC(),
+		Timestamp: journey.Timestamp,
 		Location:  journey.Location,
 		Thumbnail: journey.Thumbnail,
 	})
@@ -113,8 +114,15 @@ func registerJourneyRoutes(router gin.IRoutes, repository service.JourneyReposit
 			return
 		}
 
+		timestamp, err := time.Parse(time.DateOnly, request.Timestamp)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "journey timestamp must be a valid date"})
+			return
+		}
+
 		id, err := journeyService.Create(c.Request.Context(), domain.CreateJourney{
 			Name:      request.Name,
+			Timestamp: timestamp,
 			Location:  request.Location,
 			Thumbnail: request.Thumbnail,
 			Content:   request.Content,
@@ -246,6 +254,7 @@ func toJourneyContentResponse(journey domain.JourneyContent) openapi.JourneyCont
 	return openapi.JourneyContent{
 		Name:      journey.Name,
 		Timestamp: journey.Timestamp.Format(time.DateOnly),
+		CreatedAt: journey.CreatedAt.Format(time.DateOnly),
 		Content:   journey.Content,
 	}
 }
