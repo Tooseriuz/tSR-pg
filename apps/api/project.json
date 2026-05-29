@@ -10,7 +10,7 @@
       "dependsOn": [{ "projects": "shared-openapi", "target": "generate:backend" }],
       "options": {
         "cwd": "apps/api",
-        "command": "go run ./cmd/api"
+        "command": "set -a && . ./.env && set +a && go run ./cmd/api"
       }
     },
     "test": {

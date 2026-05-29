@@ -10,7 +10,7 @@
       "options": {
         "commands": [
           "docker compose -f docker-compose.mock.yml up -d postgres storage",
-          "go -C apps/api tool github.com/jackc/tern/v2 migrate --config migrations/tern.conf --migrations migrations"
+          "cd apps/api && set -a && . ./.env && set +a && go tool github.com/jackc/tern/v2 migrate --config migrations/tern.conf --migrations migrations"
         ],
         "parallel": false
       }
@@ -19,7 +19,7 @@
       "executor": "nx:run-commands",
       "cache": false,
       "options": {
-        "command": "go -C apps/api tool github.com/jackc/tern/v2 migrate --config migrations/tern.conf --migrations migrations"
+        "command": "cd apps/api && set -a && . ./.env && set +a && go tool github.com/jackc/tern/v2 migrate --config migrations/tern.conf --migrations migrations"
       }
     },
     "down": {
