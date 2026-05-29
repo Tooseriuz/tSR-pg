@@ -7,3 +7,14 @@ package openapi
 type HealthResponse struct {
 	Status string `json:"status"`
 }
+
+// Journey defines model for Journey.
+type Journey struct {
+	Location  string `json:"location"`
+	Name      string `json:"name"`
+	Thumbnail string `json:"thumbnail"`
+	Timestamp string `json:"timestamp"`
+}
+
+// JourneysResponse defines model for JourneysResponse.
+type JourneysResponse = []Journey

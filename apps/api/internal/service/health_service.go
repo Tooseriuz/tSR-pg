@@ -1,4 +1,4 @@
-package application
+package service
 
 import "github.com/tooseriuz/tsr-pg/apps/api/internal/domain"
 

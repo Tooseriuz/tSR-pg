@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ArrowUpRight, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Mail, MapPin } from '@lucide/vue'
 import githubIcon from '../assets/icons/github.svg'
+import type { components } from '../../types/dto/openapi'
 
 type JourneyYear = `${number}`
 type JourneyMonth = 'Jan' | 'Feb' | 'Mar' | 'Apr' | 'May' | 'Jun' | 'Jul' | 'Aug' | 'Sep' | 'Oct' | 'Nov' | 'Dec'
+type ApiJourney = components['schemas']['Journey']
 
 interface JourneyPoint {
   year: JourneyYear
@@ -17,7 +19,6 @@ interface Journey {
   place: string
   date: string
   thumbnail: string
-  highlight?: boolean
 }
 
 const isHeroCollapsed = ref(false)
@@ -28,95 +29,39 @@ const selectedJourneyPoint = ref<JourneyPoint | null>(null)
 let brandMarkObserver: IntersectionObserver | null = null
 
 const monthOrder: JourneyMonth[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const monthFormatter = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' })
 
-const journeys: Journey[] = [
-  {
-    year: '2020',
-    month: 'Apr',
-    topic: 'Remote desk, first production habits',
-    place: 'Bangkok',
-    date: 'Apr 2020',
-    thumbnail: 'https://picsum.photos/seed/tsr-remote-desk-2020/800/600',
-    highlight: true,
-  },
-  {
-    year: '2020',
-    month: 'Aug',
-    topic: 'Notes from shipping a small booking tool',
-    place: 'Home office',
-    date: 'Aug 2020',
-    thumbnail: 'https://picsum.photos/seed/tsr-booking-tool-2020/800/600',
-  },
-  {
-    year: '2020',
-    month: 'Nov',
-    topic: 'Weekend archive of terminal experiments',
-    place: 'Late nights',
-    date: 'Nov 2020',
-    thumbnail: 'https://picsum.photos/seed/tsr-terminal-2020/800/600',
-  },
-  {
-    year: '2022',
-    month: 'Feb',
-    topic: 'Backend contracts and cleaner handoffs',
-    place: 'API notes',
-    date: 'Feb 2022',
-    thumbnail: 'https://picsum.photos/seed/tsr-api-contracts-2022/800/600',
-    highlight: true,
-  },
-  {
-    year: '2022',
-    month: 'Jun',
-    topic: 'A week rebuilding dashboards for speed',
-    place: 'Product sprint',
-    date: 'Jun 2022',
-    thumbnail: 'https://picsum.photos/seed/tsr-dashboard-2022/800/600',
-  },
-  {
-    year: '2022',
-    month: 'Oct',
-    topic: 'Field notes on service boundaries',
-    place: 'Architecture log',
-    date: 'Oct 2022',
-    thumbnail: 'https://picsum.photos/seed/tsr-architecture-2022/800/600',
-  },
-  {
-    year: '2024',
-    month: 'Jan',
-    topic: 'Designing quieter tools for repeated work',
-    place: 'Frontend lab',
-    date: 'Jan 2024',
-    thumbnail: 'https://picsum.photos/seed/tsr-frontend-lab-2024/800/600',
-    highlight: true,
-  },
-  {
-    year: '2024',
-    month: 'May',
-    topic: 'Cloud deploy diary after midnight',
-    place: 'Cloud Run',
-    date: 'May 2024',
-    thumbnail: 'https://picsum.photos/seed/tsr-cloud-run-2024/800/600',
-  },
-  {
-    year: '2024',
-    month: 'Sep',
-    topic: 'OpenAPI as the source of fewer arguments',
-    place: 'Contract work',
-    date: 'Sep 2024',
-    thumbnail: 'https://picsum.photos/seed/tsr-openapi-2024/800/600',
-  },
-]
+const { data: apiJourneys } = await useFetch<ApiJourney[]>('/api/journeys', {
+  default: () => [],
+})
+
+const journeys = computed<Journey[]>(() =>
+  apiJourneys.value.map((journey) => {
+    const timestamp = new Date(`${journey.timestamp}T00:00:00.000Z`)
+    const year = String(timestamp.getUTCFullYear()) as JourneyYear
+    const month = monthFormatter.format(timestamp) as JourneyMonth
+
+    return {
+      year,
+      month,
+      topic: journey.name,
+      place: journey.location,
+      date: `${month} ${year}`,
+      thumbnail: journey.thumbnail,
+    }
+  }),
+)
 
 const journeyTimeline = computed(() =>
-  [...new Set(journeys.map(journey => journey.year))]
+  [...new Set(journeys.value.map(journey => journey.year))]
     .sort((previousYear, nextYear) => Number(previousYear) - Number(nextYear))
     .map(year => ({
-    year,
-    months: journeys
-      .filter(journey => journey.year === year)
-      .map(journey => journey.month)
-      .filter((month, index, months) => months.indexOf(month) === index),
-  })),
+      year,
+      months: journeys.value
+        .filter(journey => journey.year === year)
+        .map(journey => journey.month)
+        .filter((month, index, months) => months.indexOf(month) === index),
+    })),
 )
 
 function getJourneyMonthOffset(month: JourneyMonth) {
@@ -131,18 +76,20 @@ function getJourneyMonthOffset(month: JourneyMonth) {
 
 const visibleJourneys = computed(() => {
   if (selectedJourneyPoint.value) {
-    return journeys.filter(journey =>
+    return journeys.value.filter(journey =>
       journey.year === selectedJourneyPoint.value?.year
       && journey.month === selectedJourneyPoint.value.month,
     )
   }
 
   if (selectedJourneyYear.value) {
-    return journeys.filter(journey => journey.year === selectedJourneyYear.value)
+    return journeys.value.filter(journey => journey.year === selectedJourneyYear.value)
   }
 
-  return journeys.filter(journey => journey.highlight)
+  return journeys.value.slice(0, 3)
 })
+
+const hasJourneys = computed(() => journeys.value.length > 0)
 
 function selectJourneyYear(year: JourneyYear) {
   selectedJourneyYear.value = selectedJourneyYear.value === year ? null : year
@@ -346,17 +293,20 @@ onUnmounted(() => {
               journeys
             </p>
             <h2 class="m-0 max-w-[10ch] text-5xl font-black leading-none tracking-normal text-foreground sm:text-6xl lg:text-7xl">
-              Field notes from the years between.
+              What made me `ME`
             </h2>
             <p class="m-0 max-w-[54ch] text-base leading-7 text-muted-foreground">
-              A compact diary of projects, moves, and working notes. Highlights stay visible first; choose a year to open the full stack from that time.
+              A compact diary of my life from what I remember until now.
             </p>
           </div>
 
           <div class="grid gap-4">
             <div class="flex items-center justify-between gap-3">
               <div class="h-px flex-1 bg-border" aria-hidden="true" />
-              <div class="flex gap-2">
+              <div
+                v-if="hasJourneys"
+                class="flex gap-2"
+              >
                 <button
                   type="button"
                   class="inline-flex size-9 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px]"
@@ -377,6 +327,7 @@ onUnmounted(() => {
             </div>
 
             <div
+              v-if="hasJourneys"
               ref="journeyTimelineRef"
               class="overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
@@ -443,7 +394,10 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
+        <div
+          v-if="hasJourneys"
+          class="grid gap-4 sm:grid-cols-2"
+        >
           <article
             v-for="(journey, index) in visibleJourneys"
             :key="`${selectedJourneyYear ?? 'highlight'}-${journey.year}-${journey.topic}`"
@@ -493,6 +447,12 @@ onUnmounted(() => {
             </div>
           </article>
         </div>
+        <p
+          v-else
+          class="m-0 rounded-md border border-dashed border-border bg-background/88 p-6 text-base font-semibold leading-7 text-muted-foreground shadow-soft sm:p-8"
+        >
+          no journey for now, the author is adventuring!
+        </p>
       </div>
     </section>
   </div>

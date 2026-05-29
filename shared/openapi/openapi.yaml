@@ -14,6 +14,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /journeys:
+    get:
+      operationId: getJourneys
+      summary: List journeys
+      responses:
+        '200':
+          description: Journeys
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneysResponse'
 components:
   schemas:
     HealthResponse:
@@ -24,3 +35,23 @@ components:
         status:
           type: string
           example: ok
+    Journey:
+      type: object
+      required:
+        - name
+        - timestamp
+        - location
+        - thumbnail
+      properties:
+        name:
+          type: string
+        timestamp:
+          type: string
+        location:
+          type: string
+        thumbnail:
+          type: string
+    JourneysResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Journey'
