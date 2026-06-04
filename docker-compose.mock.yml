@@ -31,8 +31,7 @@ services:
     ports:
       - "4443:4443"
     volumes:
-      - storage_data:/data
+      - ./tools/mock/storage:/data
 
 volumes:
   postgres_data:
-  storage_data:

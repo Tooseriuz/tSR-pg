@@ -46,6 +46,34 @@ paths:
           description: Invalid request
         '403':
           description: Invalid admin token
+  /journey/images:
+    post:
+      operationId: uploadJourneyImages
+      summary: Upload journey images
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - images
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Uploaded journey images
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadJourneyImagesResponse'
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid admin token
   /journey/{id}:
     get:
       operationId: getJourney
@@ -128,6 +156,17 @@ components:
         id:
           type: integer
           format: int64
+    UploadedImage:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+    UploadJourneyImagesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/UploadedImage'
     HealthResponse:
       type: object
       required:

@@ -55,6 +55,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/journey/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload journey images */
+        post: operations["uploadJourneyImages"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/journey/{id}": {
         parameters: {
             query?: never;
@@ -109,6 +126,10 @@ export interface components {
             /** Format: int64 */
             id: number;
         };
+        UploadedImage: {
+            url: string;
+        };
+        UploadJourneyImagesResponse: components["schemas"]["UploadedImage"][];
         HealthResponse: {
             /** @example ok */
             status: string;
@@ -197,6 +218,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CreateJourneyResponse"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid admin token */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    uploadJourneyImages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    images: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Uploaded journey images */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadJourneyImagesResponse"];
                 };
             };
             /** @description Invalid request */

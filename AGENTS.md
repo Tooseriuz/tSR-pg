@@ -70,6 +70,8 @@ Before completing any task:
 2. Run tests
 3. Run build
 
+Do not run build on backend go
+
 Ensure all commands succeed before considering the task complete.
 
 Do not try to fix it without permission, report to user instead.

@@ -51,6 +51,10 @@ function renderInlineMarkdown(value: string) {
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
 }
 
+function renderImageMarkdown(alt: string, source: string) {
+  return `<figure><img src="${escapeHtml(source)}" alt="${escapeHtml(alt)}"></figure>`
+}
+
 function renderMarkdown(value: string) {
   const blocks: string[] = []
   const lines = value.replace(/\r\n/g, '\n').split('\n')
@@ -112,6 +116,14 @@ function renderMarkdown(value: string) {
       const text = heading[2] ?? ''
       const level = marker.length + 1
       blocks.push(`<h${level}>${renderInlineMarkdown(text)}</h${level}>`)
+      continue
+    }
+
+    const image = /^!\[([^\]]*)]\(([^)]+)\)$/.exec(trimmedLine)
+    if (image) {
+      flushParagraph()
+      flushList()
+      blocks.push(renderImageMarkdown(image[1] ?? '', image[2] ?? ''))
       continue
     }
 

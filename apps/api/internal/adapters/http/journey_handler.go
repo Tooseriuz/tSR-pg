@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -8,6 +9,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -74,7 +76,7 @@ func (r *memoryJourneyRepository) Create(_ context.Context, journey domain.Creat
 	return id, nil
 }
 
-func registerJourneyRoutes(router gin.IRoutes, repository service.JourneyRepository, adminToken string) {
+func registerJourneyRoutes(router gin.IRoutes, repository service.JourneyRepository, imageStorage service.ImageStorage, adminToken string) {
 	journeyService := service.NewJourneyService(repository)
 
 	router.GET("/journeys", func(c *gin.Context) {
@@ -138,6 +140,66 @@ func registerJourneyRoutes(router gin.IRoutes, repository service.JourneyReposit
 		}
 
 		c.JSON(http.StatusCreated, openapi.CreateJourneyResponse{Id: id})
+	})
+
+	router.POST("/journey/images", requireAdminSession(adminToken), func(c *gin.Context) {
+		if imageStorage == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "image storage is not configured"})
+			return
+		}
+
+		form, err := c.MultipartForm()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid image upload request"})
+			return
+		}
+
+		files := append(form.File["images"], form.File["images[]"]...)
+		if len(files) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "at least one image is required"})
+			return
+		}
+
+		response := make(openapi.UploadJourneyImagesResponse, 0, len(files))
+		for _, fileHeader := range files {
+			file, err := fileHeader.Open()
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "failed to read image"})
+				return
+			}
+
+			contentType := fileHeader.Header.Get("Content-Type")
+			reader := io.Reader(file)
+			if !strings.HasPrefix(contentType, "image/") {
+				var sample [512]byte
+				bytesRead, readErr := file.Read(sample[:])
+				if readErr != nil && !errors.Is(readErr, io.EOF) {
+					file.Close()
+					c.JSON(http.StatusBadRequest, gin.H{"error": "failed to read image"})
+					return
+				}
+				detectedContentType := http.DetectContentType(sample[:bytesRead])
+				if strings.HasPrefix(detectedContentType, "image/") {
+					contentType = detectedContentType
+				}
+				reader = io.MultiReader(bytes.NewReader(sample[:bytesRead]), file)
+			}
+
+			image, err := imageStorage.Upload(c.Request.Context(), fileHeader.Filename, contentType, reader)
+			file.Close()
+			if errors.Is(err, service.ErrInvalidImage) {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "only image files are allowed"})
+				return
+			}
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to upload image " + err.Error()})
+				return
+			}
+
+			response = append(response, openapi.UploadedImage{Url: image.URL})
+		}
+
+		c.JSON(http.StatusCreated, response)
 	})
 }
 

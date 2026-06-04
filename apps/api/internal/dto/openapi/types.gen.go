@@ -48,8 +48,24 @@ type JourneyContent struct {
 // JourneysResponse defines model for JourneysResponse.
 type JourneysResponse = []Journey
 
+// UploadJourneyImagesResponse defines model for UploadJourneyImagesResponse.
+type UploadJourneyImagesResponse = []UploadedImage
+
+// UploadedImage defines model for UploadedImage.
+type UploadedImage struct {
+	Url string `json:"url"`
+}
+
+// UploadJourneyImagesMultipartBody defines parameters for UploadJourneyImages.
+type UploadJourneyImagesMultipartBody struct {
+	Images []string `json:"images"`
+}
+
 // VerifyAdminJSONRequestBody defines body for VerifyAdmin for application/json ContentType.
 type VerifyAdminJSONRequestBody = AdminVerifyRequest
 
 // CreateJourneyJSONRequestBody defines body for CreateJourney for application/json ContentType.
 type CreateJourneyJSONRequestBody = CreateJourneyRequest
+
+// UploadJourneyImagesMultipartRequestBody defines body for UploadJourneyImages for multipart/form-data ContentType.
+type UploadJourneyImagesMultipartRequestBody UploadJourneyImagesMultipartBody

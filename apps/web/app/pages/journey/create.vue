@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { ArrowLeft, Check, KeyRound, Send, Star } from '@lucide/vue'
+import { ArrowLeft, Check, Image, KeyRound, Send, Star, X } from '@lucide/vue'
 import type { components } from '../../../types/dto/openapi'
 
 type CreateJourneyRequest = components['schemas']['CreateJourneyRequest']
 type CreateJourneyResponse = components['schemas']['CreateJourneyResponse']
+type UploadJourneyImagesResponse = components['schemas']['UploadJourneyImagesResponse']
+
+interface PendingContentImage {
+  id: string
+  token: string
+  file: File
+  previewUrl: string
+}
 
 const router = useRouter()
 const contentInput = ref<HTMLTextAreaElement | null>(null)
@@ -11,7 +19,10 @@ const tokenInput = ref('')
 const name = ref('')
 const timestamp = ref(new Date().toISOString().slice(0, 10))
 const location = ref('')
+const thumbnailFile = ref<File | null>(null)
+const thumbnailPreviewUrl = ref('')
 const content = ref('')
+const contentImages = ref<PendingContentImage[]>([])
 const highlight = ref(false)
 const tokenError = ref('')
 const submitError = ref('')
@@ -33,7 +44,15 @@ const isTimestampReady = computed(() => trimmedTimestamp.value.length > 0)
 const isLocationReady = computed(() => trimmedLocation.value.length > 0)
 const isContentReady = computed(() => trimmedContent.value.length > 0)
 const canSubmit = computed(() => isVerified.value && isNameReady.value && isTimestampReady.value && isLocationReady.value && isContentReady.value && !isSubmitting.value)
-const renderedPreview = computed(() => renderMarkdown(trimmedContent.value))
+const previewContent = computed(() => {
+  let value = content.value
+  for (const image of contentImages.value) {
+    value = value.replaceAll(image.token, image.previewUrl)
+  }
+
+  return value.trim()
+})
+const renderedPreview = computed(() => renderMarkdown(previewContent.value))
 const hasPreview = computed(() => isNameReady.value || isContentReady.value)
 const previewHappenedOnDate = computed(() => formatDate(trimmedTimestamp.value))
 const previewPostedOnDate = computed(() => dateFormatter.format(new Date()))
@@ -54,6 +73,13 @@ onMounted(async () => {
   }
   catch {
     isVerified.value = false
+  }
+})
+
+onUnmounted(() => {
+  clearThumbnail()
+  for (const image of contentImages.value) {
+    URL.revokeObjectURL(image.previewUrl)
   }
 })
 
@@ -108,21 +134,38 @@ async function verifyToken() {
 
 async function submitJourney() {
   submitError.value = ''
-  const request: CreateJourneyRequest = {
-    name: trimmedName.value,
-    timestamp: trimmedTimestamp.value,
-    location: trimmedLocation.value,
-    content: trimmedContent.value,
-    highlight: highlight.value,
-  }
-
-  if (!request.name || !request.timestamp || !request.location || !request.content) {
+  if (!trimmedName.value || !trimmedTimestamp.value || !trimmedLocation.value || !trimmedContent.value) {
     submitError.value = 'Journey name, date, location, and content are required.'
     return
   }
 
   isSubmitting.value = true
   try {
+    const thumbnailUploads = thumbnailFile.value ? await uploadImages([thumbnailFile.value]) : []
+    const thumbnailUrl = thumbnailUploads[0]?.url
+    let submittedContent = trimmedContent.value
+    const attachedImages = contentImages.value.filter(image => submittedContent.includes(image.token))
+
+    if (attachedImages.length > 0) {
+      const uploadedImages = await uploadImages(attachedImages.map(image => image.file))
+      attachedImages.forEach((image, index) => {
+        const uploadedImage = uploadedImages[index]
+        if (!uploadedImage) {
+          throw new Error('missing uploaded image url')
+        }
+        submittedContent = submittedContent.replaceAll(image.token, uploadedImage.url)
+      })
+    }
+
+    const request: CreateJourneyRequest = {
+      name: trimmedName.value,
+      timestamp: trimmedTimestamp.value,
+      location: trimmedLocation.value,
+      thumbnail: thumbnailUrl,
+      content: submittedContent,
+      highlight: highlight.value,
+    }
+
     const response = await $fetch<CreateJourneyResponse>('/api/journey', {
       method: 'POST',
       body: request,
@@ -136,6 +179,91 @@ async function submitJourney() {
   finally {
     isSubmitting.value = false
   }
+}
+
+async function uploadImages(files: File[]) {
+  const formData = new FormData()
+  for (const file of files) {
+    formData.append('images', file)
+  }
+
+  return await $fetch<UploadJourneyImagesResponse>('/api/journey/images', {
+    method: 'POST',
+    body: formData,
+  })
+}
+
+function onThumbnailChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file) {
+    setThumbnail(file)
+  }
+  input.value = ''
+}
+
+function setThumbnail(file: File) {
+  if (!file.type.startsWith('image/')) {
+    submitError.value = 'Thumbnail must be an image file.'
+    return
+  }
+
+  clearThumbnail()
+  thumbnailFile.value = file
+  thumbnailPreviewUrl.value = URL.createObjectURL(file)
+}
+
+function clearThumbnail() {
+  if (thumbnailPreviewUrl.value) {
+    URL.revokeObjectURL(thumbnailPreviewUrl.value)
+  }
+  thumbnailFile.value = null
+  thumbnailPreviewUrl.value = ''
+}
+
+function onContentDrop(event: DragEvent) {
+  const files = Array.from(event.dataTransfer?.files ?? []).filter(file => file.type.startsWith('image/'))
+  if (files.length === 0) {
+    return
+  }
+
+  event.preventDefault()
+  for (const file of files) {
+    addContentImage(file)
+  }
+}
+
+function addContentImage(file: File) {
+  const id = getImageID()
+  const token = `__journey_image_${id}__`
+  const previewUrl = URL.createObjectURL(file)
+  contentImages.value.push({ id, token, file, previewUrl })
+  insertContentBlock(`![${sanitizeImageAlt(file.name)}](${token})`)
+}
+
+function insertContentBlock(value: string) {
+  const input = contentInput.value
+  const insertAt = input?.selectionStart ?? content.value.length
+  const before = content.value.slice(0, insertAt).trimEnd()
+  const after = content.value.slice(insertAt).trimStart()
+  content.value = [before, value, after].filter(Boolean).join('\n\n')
+
+  nextTick(() => {
+    resizeContentInput()
+    input?.focus()
+  })
+}
+
+function getImageID() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID()
+  }
+
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
+function sanitizeImageAlt(value: string) {
+  return value.replace(/\.[^.]+$/, '').replace(/[()[\]]/g, '').trim() || 'journey image'
 }
 
 function escapeHtml(value: string) {
@@ -152,6 +280,10 @@ function renderInlineMarkdown(value: string) {
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+}
+
+function renderImageMarkdown(alt: string, source: string) {
+  return `<figure><img src="${escapeHtml(source)}" alt="${escapeHtml(alt)}"></figure>`
 }
 
 function renderMarkdown(value: string) {
@@ -215,6 +347,14 @@ function renderMarkdown(value: string) {
       const text = heading[2] ?? ''
       const level = marker.length + 1
       blocks.push(`<h${level}>${renderInlineMarkdown(text)}</h${level}>`)
+      continue
+    }
+
+    const image = /^!\[([^\]]*)]\(([^)]+)\)$/.exec(trimmedLine)
+    if (image) {
+      flushParagraph()
+      flushList()
+      blocks.push(renderImageMarkdown(image[1] ?? '', image[2] ?? ''))
       continue
     }
 
@@ -305,6 +445,49 @@ function renderMarkdown(value: string) {
             >
           </div>
 
+          <div class="grid gap-3 rounded-lg border border-border bg-background p-4 shadow-soft">
+            <div class="flex items-center justify-between gap-3">
+              <label class="text-sm font-bold text-foreground" for="journey-thumbnail">thumbnail</label>
+              <button
+                v-if="thumbnailFile"
+                type="button"
+                class="inline-flex size-8 items-center justify-center rounded-md border border-border bg-background text-foreground transition hover:bg-surface active:-translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-55"
+                aria-label="Remove thumbnail"
+                :disabled="!isVerified || isSubmitting"
+                @click="clearThumbnail"
+              >
+                <X class="size-4" aria-hidden="true" />
+              </button>
+            </div>
+
+            <label
+              for="journey-thumbnail"
+              class="group grid min-h-44 cursor-pointer place-items-center overflow-hidden rounded-md border border-dashed border-border bg-surface text-center transition hover:border-primary hover:bg-background"
+              :class="!isVerified || isSubmitting ? 'cursor-not-allowed opacity-55' : ''"
+            >
+              <img
+                v-if="thumbnailPreviewUrl"
+                class="h-full max-h-72 w-full object-cover"
+                :src="thumbnailPreviewUrl"
+                alt="Selected journey thumbnail preview"
+              >
+              <span v-else class="grid justify-items-center gap-2 px-4 py-8">
+                <span class="grid size-10 place-items-center rounded-md border border-border bg-background text-foreground">
+                  <Image class="size-5" aria-hidden="true" />
+                </span>
+                <span class="text-sm font-bold text-foreground">choose thumbnail image</span>
+              </span>
+            </label>
+            <input
+              id="journey-thumbnail"
+              class="sr-only"
+              type="file"
+              accept="image/*"
+              :disabled="!isVerified || isSubmitting"
+              @change="onThumbnailChange"
+            >
+          </div>
+
           <div class="gap-2 overflow-hidden rounded-lg border border-border bg-background p-4 shadow-soft">
             <div class="grid gap-3 pb-2 sm:grid-cols-[1fr_auto] sm:items-center">
               <div class="flex items-center gap-2">
@@ -318,6 +501,8 @@ function renderMarkdown(value: string) {
               v-model="content"
               class="min-h-12 w-full overflow-hidden rounded-md border border-border bg-surface px-4 py-4 text-base leading-6 outline-none transition placeholder:text-muted-foreground focus:border-primary focus:bg-background disabled:opacity-55"
               :disabled="!isVerified || isSubmitting"
+              @dragover.prevent
+              @drop="onContentDrop"
               @input="resizeContentInput"
             />
           </div>

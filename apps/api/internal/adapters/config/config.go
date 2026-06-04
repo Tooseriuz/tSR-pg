@@ -5,11 +5,19 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
-	Port        string
-	DatabaseURL string
+	Port                   string
+	DatabaseURL            string
+	GCSBucketName          string
+	GCSEndpoint            string
+	GCSPublicBaseURL       string
+	GCSSignedURLAccessID   string
+	GCSSignedURLPrivateKey []byte
+	GCSSignedURLHostname   string
+	GCSSignedURLInsecure   bool
 }
 
 func Load() (Config, error) {
@@ -63,7 +71,45 @@ func Load() (Config, error) {
 	query.Set("sslmode", sslMode)
 	databaseURL.RawQuery = query.Encode()
 
-	return Config{Port: port, DatabaseURL: databaseURL.String()}, nil
+	gcsBucketName := os.Getenv("GCS_BUCKET_NAME")
+	if gcsBucketName == "" {
+		gcsBucketName = "tsr-pg-journey-images"
+	}
+
+	gcsEndpoint := os.Getenv("GCS_ENDPOINT")
+	if gcsEndpoint == "" {
+		gcsEndpoint = "http://localhost:4443"
+	}
+
+	gcsPublicBaseURL := os.Getenv("GCS_PUBLIC_BASE_URL")
+	if gcsPublicBaseURL == "" {
+		gcsPublicBaseURL = strings.TrimRight(gcsEndpoint, "/") + "/" + gcsBucketName
+	}
+
+	gcsSignedURLInsecure := false
+	if rawValue := os.Getenv("GCS_SIGNED_URL_INSECURE"); rawValue != "" {
+		parsedValue, err := strconv.ParseBool(rawValue)
+		if err != nil {
+			return Config{}, fmt.Errorf("invalid GCS_SIGNED_URL_INSECURE: %w", err)
+		}
+		gcsSignedURLInsecure = parsedValue
+	}
+	var gcsSignedURLPrivateKey []byte
+	if rawValue := os.Getenv("GCS_SIGNED_URL_PRIVATE_KEY"); rawValue != "" {
+		gcsSignedURLPrivateKey = []byte(strings.ReplaceAll(rawValue, `\n`, "\n"))
+	}
+
+	return Config{
+		Port:                   port,
+		DatabaseURL:            databaseURL.String(),
+		GCSBucketName:          gcsBucketName,
+		GCSEndpoint:            gcsEndpoint,
+		GCSPublicBaseURL:       gcsPublicBaseURL,
+		GCSSignedURLAccessID:   os.Getenv("GCS_SIGNED_URL_ACCESS_ID"),
+		GCSSignedURLPrivateKey: gcsSignedURLPrivateKey,
+		GCSSignedURLHostname:   os.Getenv("GCS_SIGNED_URL_HOSTNAME"),
+		GCSSignedURLInsecure:   gcsSignedURLInsecure,
+	}, nil
 }
 
 func (c Config) Address() string {

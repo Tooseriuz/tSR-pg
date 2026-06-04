@@ -10,6 +10,7 @@ import (
 
 type RouterConfig struct {
 	journeyRepository service.JourneyRepository
+	imageStorage      service.ImageStorage
 	adminToken        string
 }
 
@@ -27,6 +28,12 @@ func WithAdminToken(token string) RouterOption {
 	}
 }
 
+func WithImageStorage(storage service.ImageStorage) RouterOption {
+	return func(config *RouterConfig) {
+		config.imageStorage = storage
+	}
+}
+
 func NewRouter(options ...RouterOption) *gin.Engine {
 	config := RouterConfig{
 		journeyRepository: newMemoryJourneyRepository(),
@@ -41,7 +48,7 @@ func NewRouter(options ...RouterOption) *gin.Engine {
 
 	registerHealthRoutes(router)
 	registerAdminRoutes(router, config.adminToken)
-	registerJourneyRoutes(router, config.journeyRepository, config.adminToken)
+	registerJourneyRoutes(router, config.journeyRepository, config.imageStorage, config.adminToken)
 
 	return router
 }
