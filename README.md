@@ -1,6 +1,6 @@
 # tSR-pg
 
-Minimal placeholder monorepo scaffold for:
+An over-engineer playground monorepo:
 
 - `apps/web`: Nuxt frontend placeholder
 - `apps/api`: Go + Gin backend placeholder
