@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronDown, Mail } from '@lucide/vue'
+import { ChevronDown, ChevronRight, Mail } from '@lucide/vue'
 import githubIcon from '../assets/icons/github.svg'
 import type { components } from '../../types/dto/openapi'
 import type { Journey, JourneyMonth, JourneyPoint, JourneyYear } from '../types/journey'
@@ -8,8 +8,10 @@ type ApiJourney = components['schemas']['Journey']
 
 const isHeroCollapsed = ref(false)
 const brandMarkRef = ref<HTMLElement | null>(null)
+const journeyRailRef = ref<HTMLElement | null>(null)
 const selectedJourneyYear = ref<JourneyYear | null>(null)
 const selectedJourneyPoint = ref<JourneyPoint | null>(null)
+const canShowMoreJourneys = ref(false)
 let brandMarkObserver: IntersectionObserver | null = null
 
 const monthFormatter = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' })
@@ -64,6 +66,18 @@ const visibleJourneys = computed(() => {
 })
 
 const hasJourneys = computed(() => journeys.value.length > 0)
+const hasSelectedJourneyFilter = computed(() => Boolean(selectedJourneyYear.value || selectedJourneyPoint.value))
+
+function updateJourneyRailOverflow() {
+  const rail = journeyRailRef.value
+
+  if (!rail || !hasSelectedJourneyFilter.value) {
+    canShowMoreJourneys.value = false
+    return
+  }
+
+  canShowMoreJourneys.value = rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 8
+}
 
 function selectJourneyYear(year: JourneyYear) {
   selectedJourneyYear.value = selectedJourneyYear.value === year ? null : year
@@ -76,6 +90,19 @@ function selectJourneyPoint(point: JourneyPoint) {
 
   selectedJourneyPoint.value = isSelected ? null : point
   selectedJourneyYear.value = null
+}
+
+function showMoreJourneys() {
+  const rail = journeyRailRef.value
+
+  if (!rail) {
+    return
+  }
+
+  rail.scrollBy({
+    left: rail.clientWidth * 0.82,
+    behavior: 'smooth',
+  })
 }
 
 useHead({
@@ -91,28 +118,40 @@ useHead({
 onMounted(() => {
   const brandMark = brandMarkRef.value
 
-  if (!brandMark) {
-    return
+  if (brandMark) {
+    brandMarkObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) {
+          return
+        }
+
+        isHeroCollapsed.value = !entry.isIntersecting
+      },
+      {
+        threshold: 0,
+      },
+    )
+
+    brandMarkObserver.observe(brandMark)
   }
 
-  brandMarkObserver = new IntersectionObserver(
-    ([entry]) => {
-      if (!entry) {
-        return
-      }
-
-      isHeroCollapsed.value = !entry.isIntersecting
-    },
-    {
-      threshold: 0,
-    },
-  )
-
-  brandMarkObserver.observe(brandMark)
+  updateJourneyRailOverflow()
+  window.addEventListener('resize', updateJourneyRailOverflow)
 })
 
 onUnmounted(() => {
   brandMarkObserver?.disconnect()
+  window.removeEventListener('resize', updateJourneyRailOverflow)
+})
+
+watch(visibleJourneys, async () => {
+  await nextTick()
+
+  if (journeyRailRef.value) {
+    journeyRailRef.value.scrollLeft = 0
+  }
+
+  updateJourneyRailOverflow()
 })
 </script>
 
@@ -194,10 +233,10 @@ onUnmounted(() => {
 
     <section
       id="journeys"
-      class="relative isolate grid min-h-[100dvh] content-center overflow-hidden border-t border-border bg-background px-6 py-20 sm:px-8 lg:px-12"
+      class="relative isolate grid min-h-[100dvh] content-center overflow-hidden border-t border-border bg-background py-20 pl-6 pr-0 sm:pl-8 lg:pl-[20%]"
     >
-      <div class="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
-        <div class="grid gap-8">
+      <div class="grid w-full gap-12 lg:grid-cols-[minmax(18rem,28rem)_minmax(0,1fr)] lg:items-center">
+        <div class="grid gap-8 pr-6 sm:pr-8 lg:pr-0">
           <div class="grid gap-4">
             <p class="m-0 font-mono text-xs font-bold uppercase tracking-[0.32em] text-accent">
               journeys
@@ -222,15 +261,34 @@ onUnmounted(() => {
 
         <div
           v-if="hasJourneys"
-          class="grid gap-4 sm:grid-cols-2"
+          class="relative overflow-hidden"
         >
-          <JourneyCard
-            v-for="(journey, index) in visibleJourneys"
-            :key="`${selectedJourneyYear ?? 'highlight'}-${journey.year}-${journey.topic}`"
-            :journey="journey"
-            :index="index"
-            :visible-count="visibleJourneys.length"
-          />
+          <div
+            ref="journeyRailRef"
+            class="flex snap-x gap-4 overflow-x-auto pb-2 pr-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            aria-label="Journey cards"
+            @scroll="updateJourneyRailOverflow"
+          >
+            <JourneyCard
+              v-for="journey in visibleJourneys"
+              :key="`${selectedJourneyYear ?? selectedJourneyPoint?.year ?? 'highlight'}-${journey.id}`"
+              class="w-[min(78vw,18rem)] shrink-0 snap-start sm:w-72 lg:w-80"
+              :journey="journey"
+            />
+          </div>
+
+          <button
+            v-if="canShowMoreJourneys"
+            type="button"
+            class="absolute inset-y-0 right-0 grid w-32 place-items-center bg-gradient-to-l from-background via-background/90 to-background/10 text-foreground outline-none transition hover:text-primary"
+            aria-label="Show more journey cards"
+            @click="showMoreJourneys"
+          >
+            <span class="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs font-bold shadow-soft transition hover:border-primary">
+              More
+              <ChevronRight class="size-5" aria-hidden="true" />
+            </span>
+          </button>
         </div>
         <p
           v-else

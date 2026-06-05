@@ -4,8 +4,6 @@ import type { Journey } from '../types/journey'
 
 defineProps<{
   journey: Journey
-  index: number
-  visibleCount: number
 }>()
 </script>
 
@@ -13,15 +11,8 @@ defineProps<{
   <NuxtLink
     :to="`/journey/${journey.id}`"
     class="group overflow-hidden rounded-md border border-border bg-background shadow-soft transition duration-300 hover:-translate-y-1 hover:border-primary/40"
-    :class="[
-      index === 0 ? 'sm:row-span-2' : '',
-      visibleCount === 3 && index === 2 ? 'sm:col-start-2' : '',
-    ]"
   >
-    <div
-      class="relative overflow-hidden"
-      :class="index === 0 ? 'aspect-[4/5]' : 'aspect-[4/3]'"
-    >
+    <div class="relative aspect-[4/3] overflow-hidden">
       <img
         v-if="journey.thumbnail"
         class="size-full object-cover transition duration-500 group-hover:scale-[1.04]"
