@@ -100,6 +100,7 @@ For UI/design-related tasks:
 - Use shadcn/ui components where appropriate
 - Follow styles and patterns from:
   - `./agents/skills/design-taste-frontend`
+- create new component instead of nested div within one file
 
 Prefer:
 - consistent spacing
