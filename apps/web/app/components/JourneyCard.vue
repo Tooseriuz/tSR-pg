@@ -10,7 +10,7 @@ defineProps<{
 <template>
   <NuxtLink
     :to="`/journey/${journey.id}`"
-    class="group overflow-hidden rounded-md border border-border bg-background shadow-soft transition duration-300 hover:-translate-y-1 hover:border-primary/40"
+    class="group mt-1 block overflow-hidden rounded-md border border-border bg-background shadow-soft transition duration-300 hover:-translate-y-1 hover:border-primary/40"
   >
     <div class="relative aspect-[4/3] overflow-hidden">
       <img

@@ -80,13 +80,13 @@
 
   .typing-name {
     animation:
-      typing-name 9s steps(15, end) 800ms infinite,
+      typing-name 9s steps(22, end) 800ms infinite,
       typing-caret-name 9s step-end 800ms infinite;
   }
 
   .typing-role {
     animation:
-      typing-role 9s steps(17, end) 800ms infinite,
+      typing-role 9s steps(22, end) 800ms infinite,
       typing-caret-role 9s step-end 800ms infinite;
   }
 
