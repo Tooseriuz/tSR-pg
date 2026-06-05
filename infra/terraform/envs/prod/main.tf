@@ -42,6 +42,7 @@ resource "google_project_service" "required" {
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
     "run.googleapis.com",
+    "storage.googleapis.com",
     "sts.googleapis.com",
   ])
 
@@ -61,6 +62,15 @@ module "artifact_registry" {
   source        = "../../modules/artifact_registry"
   repository_id = "tooseriuzdotcom-ar"
   location      = var.region
+
+  depends_on = [google_project_service.required]
+}
+
+module "gcs" {
+  source                          = "../../modules/gcs"
+  bucket_name                     = "${var.project_id}-tooseriuzdotcom-api-files"
+  location                        = var.region
+  cloud_run_service_account_email = module.cloud_run_api.service_account_email
 
   depends_on = [google_project_service.required]
 }
@@ -88,6 +98,14 @@ output "cloud_run_service_name" {
 
 output "cloud_run_uri" {
   value = module.cloud_run_api.uri
+}
+
+output "gcs_bucket_name" {
+  value = module.gcs.bucket_name
+}
+
+output "gcs_bucket_url" {
+  value = module.gcs.bucket_url
 }
 
 output "github_actions_service_account" {

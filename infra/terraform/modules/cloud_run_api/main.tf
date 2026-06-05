@@ -28,6 +28,7 @@ resource "google_service_account" "runtime" {
 resource "google_cloud_run_v2_service" "api" {
   name     = var.service_name
   location = var.location
+  deletion_protection = false
 
   template {
     service_account = google_service_account.runtime.email

@@ -19,6 +19,7 @@ env:
   CLOUD_RUN_SERVICE: tooseriuzdotcom-api
   CLOUD_RUN_REGION: asia-southeast1
   IMAGE_NAME: api
+  IMAGE_URI: asia-southeast1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/tooseriuzdotcom-ar/api
   PROJECT_NUMBER: ${{ vars.GCP_PROJECT_NUMBER }}
 
 jobs:
@@ -42,10 +43,10 @@ jobs:
         run: gcloud auth configure-docker "${GAR_LOCATION}-docker.pkg.dev" --quiet
 
       - name: Build image
-        run: docker build -t "${GAR_LOCATION}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${GAR_REPOSITORY}/${IMAGE_NAME}:${GITHUB_SHA}" apps/api
+        run: docker build -t "${IMAGE_URI}:${GITHUB_SHA}" -t "${IMAGE_URI}:latest" apps/api
 
       - name: Push image
-        run: docker push "${GAR_LOCATION}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${GAR_REPOSITORY}/${IMAGE_NAME}:${GITHUB_SHA}"
+        run: docker push --all-tags "${IMAGE_URI}"
 
       - name: Deploy to Cloud Run
         env:
@@ -56,9 +57,11 @@ jobs:
           DB_SSL_ENABLED: ${{ secrets.DB_SSL_ENABLED }}
           DB_PORT: ${{ secrets.DB_PORT }}
           ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+          GCS_PUBLIC_BASE_URL: ${{ secrets.GCS_PUBLIC_BASE_URL }}
         run: |
           gcloud run deploy "${CLOUD_RUN_SERVICE}" \
-            --image "${GAR_LOCATION}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${GAR_REPOSITORY}/${IMAGE_NAME}:${GITHUB_SHA}" \
+            --image "${IMAGE_URI}:${GITHUB_SHA}" \
             --region "${CLOUD_RUN_REGION}" \
             --project "${{ vars.GCP_PROJECT_ID }}" \
-            --set-env-vars "DB_NAME=${DB_NAME},DB_HOST=${DB_HOST},DB_USER=${DB_USER},DB_PASSWORD=${DB_PASSWORD},DB_SSL_ENABLED=${DB_SSL_ENABLED},DB_PORT=${DB_PORT},ADMIN_TOKEN=${ADMIN_TOKEN}"
+            --set-env-vars "DB_NAME=${DB_NAME},DB_HOST=${DB_HOST},DB_USER=${DB_USER},DB_PASSWORD=${DB_PASSWORD},DB_SSL_ENABLED=${DB_SSL_ENABLED},DB_PORT=${DB_PORT},ADMIN_TOKEN=${ADMIN_TOKEN},GCS_BUCKET_NAME=${GCS_BUCKET_NAME},GCS_PUBLIC_BASE_URL=${GCS_PUBLIC_BASE_URL}"

@@ -77,13 +77,13 @@ func Load() (Config, error) {
 	}
 
 	gcsEndpoint := os.Getenv("GCS_ENDPOINT")
-	if gcsEndpoint == "" {
-		gcsEndpoint = "http://localhost:4443"
-	}
 
 	gcsPublicBaseURL := os.Getenv("GCS_PUBLIC_BASE_URL")
 	if gcsPublicBaseURL == "" {
-		gcsPublicBaseURL = strings.TrimRight(gcsEndpoint, "/") + "/" + gcsBucketName
+		gcsPublicBaseURL = "https://storage.googleapis.com/" + gcsBucketName
+		if gcsEndpoint != "" {
+			gcsPublicBaseURL = strings.TrimRight(gcsEndpoint, "/") + "/" + gcsBucketName
+		}
 	}
 
 	gcsSignedURLInsecure := false

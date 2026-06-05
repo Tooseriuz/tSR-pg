@@ -4,6 +4,7 @@ This directory manages:
 
 - Cloud Run API service: `tooseriuzdotcom-api`
 - Artifact Registry Docker repository: `tooseriuzdotcom-ar`
+- GCS bucket for API file storage
 - GitHub Actions OIDC for deploys from `Tooseriuz/tSR-pg`
 
 Secret Manager is intentionally not enabled yet.
