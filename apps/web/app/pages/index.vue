@@ -11,6 +11,7 @@ const brandMarkRef = ref<HTMLElement | null>(null)
 const journeyRailRef = ref<HTMLElement | null>(null)
 const selectedJourneyYear = ref<JourneyYear | null>(null)
 const selectedJourneyPoint = ref<JourneyPoint | null>(null)
+const canShowPreviousJourneys = ref(false)
 const canShowMoreJourneys = ref(false)
 let brandMarkObserver: IntersectionObserver | null = null
 
@@ -72,10 +73,12 @@ function updateJourneyRailOverflow() {
   const rail = journeyRailRef.value
 
   if (!rail || !hasSelectedJourneyFilter.value) {
+    canShowPreviousJourneys.value = false
     canShowMoreJourneys.value = false
     return
   }
 
+  canShowPreviousJourneys.value = rail.scrollLeft > 8
   canShowMoreJourneys.value = rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 8
 }
 
@@ -100,7 +103,20 @@ function showMoreJourneys() {
   }
 
   rail.scrollBy({
-    left: rail.clientWidth * 0.82,
+    left: rail.clientWidth * 0.33,
+    behavior: 'smooth',
+  })
+}
+
+function showPreviousJourneys() {
+  const rail = journeyRailRef.value
+
+  if (!rail) {
+    return
+  }
+
+  rail.scrollBy({
+    left: rail.clientWidth * -0.33,
     behavior: 'smooth',
   })
 }
@@ -263,6 +279,18 @@ watch(visibleJourneys, async () => {
           v-if="hasJourneys"
           class="relative overflow-hidden"
         >
+          <button
+            v-if="canShowPreviousJourneys"
+            type="button"
+            class="absolute inset-y-0 left-0 z-[1] grid w-32 place-items-center bg-gradient-to-r from-background via-background/90 to-background/10 text-foreground outline-none transition hover:text-primary"
+            aria-label="Show previous journey cards"
+            @click="showPreviousJourneys"
+          >
+            <span class="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs font-bold shadow-soft transition hover:border-primary">
+              <ChevronRight class="size-5 rotate-180" aria-hidden="true" />
+            </span>
+          </button>
+
           <div
             ref="journeyRailRef"
             class="flex snap-x gap-4 overflow-x-auto pb-2 pr-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -285,7 +313,6 @@ watch(visibleJourneys, async () => {
             @click="showMoreJourneys"
           >
             <span class="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs font-bold shadow-soft transition hover:border-primary">
-              More
               <ChevronRight class="size-5" aria-hidden="true" />
             </span>
           </button>
