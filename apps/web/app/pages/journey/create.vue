@@ -142,7 +142,7 @@ async function submitJourney() {
   isSubmitting.value = true
   try {
     const thumbnailUploads = thumbnailFile.value ? await uploadImages([thumbnailFile.value]) : []
-    const thumbnailUrl = thumbnailUploads[0]?.url
+    const thumbnailID = thumbnailUploads[0]?.id
     let submittedContent = trimmedContent.value
     const attachedImages = contentImages.value.filter(image => submittedContent.includes(image.token))
 
@@ -151,9 +151,9 @@ async function submitJourney() {
       attachedImages.forEach((image, index) => {
         const uploadedImage = uploadedImages[index]
         if (!uploadedImage) {
-          throw new Error('missing uploaded image url')
+          throw new Error('missing uploaded image id')
         }
-        submittedContent = submittedContent.replaceAll(image.token, uploadedImage.url)
+        submittedContent = submittedContent.replace(imageMarkdownPattern(image.token), `[image/${uploadedImage.id}]`)
       })
     }
 
@@ -161,7 +161,7 @@ async function submitJourney() {
       name: trimmedName.value,
       timestamp: trimmedTimestamp.value,
       location: trimmedLocation.value,
-      thumbnail: thumbnailUrl,
+      thumbnail: thumbnailID,
       content: submittedContent,
       highlight: highlight.value,
     }
@@ -264,6 +264,14 @@ function getImageID() {
 
 function sanitizeImageAlt(value: string) {
   return value.replace(/\.[^.]+$/, '').replace(/[()[\]]/g, '').trim() || 'journey image'
+}
+
+function imageMarkdownPattern(token: string) {
+  return new RegExp(`!\\[[^\\]]*]\\(${escapeRegExp(token)}\\)`, 'g')
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 function escapeHtml(value: string) {

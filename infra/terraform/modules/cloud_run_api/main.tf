@@ -25,9 +25,15 @@ resource "google_service_account" "runtime" {
   display_name = "${var.service_name} runtime"
 }
 
+resource "google_service_account_iam_member" "runtime_token_creator" {
+  service_account_id = google_service_account.runtime.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:${google_service_account.runtime.email}"
+}
+
 resource "google_cloud_run_v2_service" "api" {
-  name     = var.service_name
-  location = var.location
+  name                = var.service_name
+  location            = var.location
   deletion_protection = false
 
   template {

@@ -127,7 +127,7 @@ export interface components {
             id: number;
         };
         UploadedImage: {
-            url: string;
+            id: string;
         };
         UploadJourneyImagesResponse: components["schemas"]["UploadedImage"][];
         HealthResponse: {

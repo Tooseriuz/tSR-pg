@@ -95,3 +95,31 @@ func (r JourneyRepository) Create(ctx context.Context, journey domain.CreateJour
 
 	return id, nil
 }
+
+func (r JourneyRepository) CreateImage(ctx context.Context, path string) (string, error) {
+	var id string
+	err := r.pool.QueryRow(ctx, `
+		insert into journey_images (path)
+		values ($1)
+		returning id
+	`, path).Scan(&id)
+	if err != nil {
+		return "", err
+	}
+
+	return id, nil
+}
+
+func (r JourneyRepository) GetImage(ctx context.Context, id string) (domain.JourneyImage, error) {
+	var image domain.JourneyImage
+	err := r.pool.QueryRow(ctx, `
+		select id, path, created_at
+		from journey_images
+		where id = $1
+	`, id).Scan(&image.ID, &image.Path, &image.CreatedAt)
+	if err != nil {
+		return domain.JourneyImage{}, err
+	}
+
+	return image, nil
+}

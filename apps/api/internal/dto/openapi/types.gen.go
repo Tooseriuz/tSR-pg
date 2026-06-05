@@ -53,7 +53,7 @@ type UploadJourneyImagesResponse = []UploadedImage
 
 // UploadedImage defines model for UploadedImage.
 type UploadedImage struct {
-	Url string `json:"url"`
+	Id string `json:"id"`
 }
 
 // UploadJourneyImagesMultipartBody defines parameters for UploadJourneyImages.

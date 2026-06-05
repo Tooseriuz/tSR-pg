@@ -159,9 +159,9 @@ components:
     UploadedImage:
       type: object
       required:
-        - url
+        - id
       properties:
-        url:
+        id:
           type: string
     UploadJourneyImagesResponse:
       type: array

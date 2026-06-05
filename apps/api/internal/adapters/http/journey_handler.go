@@ -27,11 +27,13 @@ const adminSessionTTL = time.Hour
 
 type memoryJourneyRepository struct {
 	journeys []domain.Journey
+	images   map[string]domain.JourneyImage
 }
 
 func newMemoryJourneyRepository() *memoryJourneyRepository {
 	thumbnail := "https://picsum.photos/seed/tsr-remote-desk-2020/800/600"
 	return &memoryJourneyRepository{
+		images: map[string]domain.JourneyImage{},
 		journeys: []domain.Journey{
 			{
 				ID:        1,
@@ -76,8 +78,33 @@ func (r *memoryJourneyRepository) Create(_ context.Context, journey domain.Creat
 	return id, nil
 }
 
+func (r *memoryJourneyRepository) CreateImage(_ context.Context, path string) (string, error) {
+	id := fmt.Sprintf("00000000-0000-0000-0000-%012d", len(r.images)+1)
+	r.images[id] = domain.JourneyImage{
+		ID:        id,
+		Path:      path,
+		CreatedAt: time.Now().UTC(),
+	}
+
+	return id, nil
+}
+
+func (r *memoryJourneyRepository) GetImage(_ context.Context, id string) (domain.JourneyImage, error) {
+	image, ok := r.images[id]
+	if !ok {
+		return domain.JourneyImage{}, fmt.Errorf("journey image not found")
+	}
+
+	return image, nil
+}
+
 func registerJourneyRoutes(router gin.IRoutes, repository service.JourneyRepository, imageStorage service.ImageStorage, adminToken string) {
-	journeyService := service.NewJourneyService(repository)
+	imageRepository, _ := repository.(service.JourneyImageRepository)
+	journeyService := service.NewJourneyService(
+		repository,
+		service.WithJourneyImageRepository(imageRepository),
+		service.WithJourneyImageStorage(imageStorage),
+	)
 
 	router.GET("/journeys", func(c *gin.Context) {
 		journeys, err := journeyService.List(c.Request.Context())
@@ -185,7 +212,7 @@ func registerJourneyRoutes(router gin.IRoutes, repository service.JourneyReposit
 				reader = io.MultiReader(bytes.NewReader(sample[:bytesRead]), file)
 			}
 
-			image, err := imageStorage.Upload(c.Request.Context(), fileHeader.Filename, contentType, reader)
+			imageID, err := journeyService.UploadImage(c.Request.Context(), fileHeader.Filename, contentType, reader)
 			file.Close()
 			if errors.Is(err, service.ErrInvalidImage) {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "only image files are allowed"})
@@ -196,7 +223,7 @@ func registerJourneyRoutes(router gin.IRoutes, repository service.JourneyReposit
 				return
 			}
 
-			response = append(response, openapi.UploadedImage{Url: image.URL})
+			response = append(response, openapi.UploadedImage{Id: imageID})
 		}
 
 		c.JSON(http.StatusCreated, response)

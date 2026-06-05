@@ -17,6 +17,12 @@ type JourneyContent struct {
 	Content   string
 }
 
+type JourneyImage struct {
+	ID        string
+	Path      string
+	CreatedAt time.Time
+}
+
 type CreateJourney struct {
 	Name      string
 	Timestamp time.Time
