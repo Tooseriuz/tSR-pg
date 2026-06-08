@@ -12,6 +12,7 @@ tmp/
 
 # backend
 /apps/api/.env
+/apps/api/tmp/
 
 # Go
 bin/

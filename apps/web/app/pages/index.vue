@@ -121,6 +121,10 @@ function showPreviousJourneys() {
   })
 }
 
+function scrollToJourneys() {
+  document.getElementById('journeys')?.scrollIntoView({ behavior: 'smooth' })
+}
+
 useHead({
   title: 'tooseriuz - software engineer',
   meta: [
@@ -242,6 +246,7 @@ watch(visibleJourneys, async () => {
         href="#journeys"
         class="scroll-cue absolute bottom-24 left-1/2 grid size-12 place-items-center rounded-full border border-border bg-background text-foreground shadow-soft transition hover:bg-surface active:-translate-y-[1px]"
         aria-label="Scroll to journeys"
+        @click.prevent="scrollToJourneys"
       >
         <ChevronDown class="size-5" aria-hidden="true" />
       </a>
