@@ -14,6 +14,8 @@ const journeyRailRef = ref<HTMLElement | null>(null)
 const selectedJourneyYear = ref<JourneyYear | null>(null)
 const selectedJourneyPoint = ref<JourneyPoint | null>(null)
 const focusedJourneyCardIndex = ref(0)
+const canScrollToPreviousJourneyCard = ref(false)
+const canScrollToMoreJourneyCards = ref(false)
 let brandMarkObserver: IntersectionObserver | null = null
 let journeyIntroObserver: IntersectionObserver | null = null
 
@@ -70,10 +72,12 @@ const visibleJourneys = computed(() => {
 
 const hasJourneys = computed(() => journeys.value.length > 0)
 const canShowPreviousJourneys = computed(() =>
-  visibleJourneys.value.length > 1 && focusedJourneyCardIndex.value > 0,
+  visibleJourneys.value.length > 1 && focusedJourneyCardIndex.value > 0 && canScrollToPreviousJourneyCard.value,
 )
 const canShowMoreJourneys = computed(() =>
-  visibleJourneys.value.length > 1 && focusedJourneyCardIndex.value < visibleJourneys.value.length - 1,
+  visibleJourneys.value.length > 1
+  && focusedJourneyCardIndex.value < visibleJourneys.value.length - 1
+  && canScrollToMoreJourneyCards.value,
 )
 
 function updateJourneyRailOverflow() {
@@ -81,13 +85,19 @@ function updateJourneyRailOverflow() {
 
   if (!rail || visibleJourneys.value.length <= 1) {
     focusedJourneyCardIndex.value = 0
+    canScrollToPreviousJourneyCard.value = false
+    canScrollToMoreJourneyCards.value = false
     return
   }
+
+  const maxScrollLeft = rail.scrollWidth - rail.clientWidth
 
   focusedJourneyCardIndex.value = Math.min(
     visibleJourneys.value.length - 1,
     Math.max(0, Math.round(rail.scrollLeft / getJourneyRailScrollDistance(rail))),
   )
+  canScrollToPreviousJourneyCard.value = rail.scrollLeft > 8
+  canScrollToMoreJourneyCards.value = rail.scrollLeft < maxScrollLeft - 8
 }
 
 function selectJourneyYear(year: JourneyYear) {
