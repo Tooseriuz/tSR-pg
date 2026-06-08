@@ -9,6 +9,7 @@ tmp/
 .DS_Store
 .pnpm-store
 .tmp
+.gitcmd
 
 # backend
 /apps/api/.env

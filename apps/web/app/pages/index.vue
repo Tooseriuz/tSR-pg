@@ -121,8 +121,8 @@ function showPreviousJourneys() {
   })
 }
 
-function scrollToJourneys() {
-  document.getElementById('journeys')?.scrollIntoView({ behavior: 'smooth' })
+function scrollToJourneys(behavior: ScrollBehavior = 'smooth') {
+  document.getElementById('journeys')?.scrollIntoView({ behavior })
 }
 
 useHead({
@@ -136,6 +136,10 @@ useHead({
 })
 
 onMounted(() => {
+  if (window.location.hash === '#journeys') {
+    requestAnimationFrame(() => scrollToJourneys('auto'))
+  }
+
   const brandMark = brandMarkRef.value
 
   if (brandMark) {
@@ -246,7 +250,7 @@ watch(visibleJourneys, async () => {
         href="#journeys"
         class="scroll-cue absolute bottom-24 left-1/2 grid size-12 place-items-center rounded-full border border-border bg-background text-foreground shadow-soft transition hover:bg-surface active:-translate-y-[1px]"
         aria-label="Scroll to journeys"
-        @click.prevent="scrollToJourneys"
+        @click.prevent="scrollToJourneys()"
       >
         <ChevronDown class="size-5" aria-hidden="true" />
       </a>
