@@ -17,14 +17,17 @@ const emit = defineEmits<{
 const timelineRef = ref<HTMLElement | null>(null)
 const monthOrder: JourneyMonth[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-function getMonthOffset(month: JourneyMonth) {
-  const monthIndex = monthOrder.indexOf(month)
+function getMonthOffset(months: JourneyMonth[], month: JourneyMonth) {
+  const orderedMonths = [...months].sort((previousMonth, nextMonth) =>
+    monthOrder.indexOf(previousMonth) - monthOrder.indexOf(nextMonth),
+  )
+  const monthIndex = orderedMonths.indexOf(month)
 
-  if (monthIndex < 0 || monthOrder.length <= 1) {
+  if (monthIndex < 0) {
     return '50%'
   }
 
-  return `${16 + (monthIndex / (monthOrder.length - 1)) * 68}%`
+  return `${((monthIndex + 1) / (orderedMonths.length + 1)) * 100}%`
 }
 
 function moveTimeline(direction: 'previous' | 'next') {
@@ -109,8 +112,8 @@ function moveTimeline(direction: 'previous' | 'next') {
               v-for="month in item.months"
               :key="`${item.year}-${month}`"
               type="button"
-              class="group/month absolute top-1/2 grid size-6 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full outline-none transition active:scale-95"
-              :style="{ left: getMonthOffset(month) }"
+              class="group/month absolute top-1/2 grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full outline-none transition active:scale-95"
+              :style="{ left: getMonthOffset(item.months, month) }"
               :aria-label="`Show ${month} ${item.year} journeys`"
               :aria-pressed="selectedPoint?.year === item.year && selectedPoint.month === month"
               @click="emit('selectPoint', { year: item.year, month })"
@@ -122,7 +125,7 @@ function moveTimeline(direction: 'previous' | 'next') {
               />
               <span
                 v-if="selectedPoint?.year === item.year && selectedPoint.month === month"
-                class="absolute left-1/2 top-6 -translate-x-1/2 rounded-sm bg-background px-1.5 py-0.5 font-mono text-[10px] font-bold text-primary shadow-soft"
+                class="absolute left-1/2 top-6 -translate-x-1/2 rounded-sm bg-background font-mono text-[10px] font-bold text-primary shadow-soft"
                 aria-hidden="true"
               >
                 {{ month }}
