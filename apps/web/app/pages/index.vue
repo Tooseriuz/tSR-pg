@@ -13,8 +13,7 @@ const journeysSectionRef = ref<HTMLElement | null>(null)
 const journeyRailRef = ref<HTMLElement | null>(null)
 const selectedJourneyYear = ref<JourneyYear | null>(null)
 const selectedJourneyPoint = ref<JourneyPoint | null>(null)
-const canShowPreviousJourneys = ref(false)
-const canShowMoreJourneys = ref(false)
+const focusedJourneyCardIndex = ref(0)
 let brandMarkObserver: IntersectionObserver | null = null
 let journeyIntroObserver: IntersectionObserver | null = null
 
@@ -70,19 +69,25 @@ const visibleJourneys = computed(() => {
 })
 
 const hasJourneys = computed(() => journeys.value.length > 0)
-const hasSelectedJourneyFilter = computed(() => Boolean(selectedJourneyYear.value || selectedJourneyPoint.value))
+const canShowPreviousJourneys = computed(() =>
+  visibleJourneys.value.length > 1 && focusedJourneyCardIndex.value > 0,
+)
+const canShowMoreJourneys = computed(() =>
+  visibleJourneys.value.length > 1 && focusedJourneyCardIndex.value < visibleJourneys.value.length - 1,
+)
 
 function updateJourneyRailOverflow() {
   const rail = journeyRailRef.value
 
-  if (!rail || !hasSelectedJourneyFilter.value) {
-    canShowPreviousJourneys.value = false
-    canShowMoreJourneys.value = false
+  if (!rail || visibleJourneys.value.length <= 1) {
+    focusedJourneyCardIndex.value = 0
     return
   }
 
-  canShowPreviousJourneys.value = rail.scrollLeft > 8
-  canShowMoreJourneys.value = rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 8
+  focusedJourneyCardIndex.value = Math.min(
+    visibleJourneys.value.length - 1,
+    Math.max(0, Math.round(rail.scrollLeft / getJourneyRailScrollDistance(rail))),
+  )
 }
 
 function selectJourneyYear(year: JourneyYear) {
@@ -98,6 +103,18 @@ function selectJourneyPoint(point: JourneyPoint) {
   selectedJourneyYear.value = null
 }
 
+function getJourneyRailScrollDistance(rail: HTMLElement) {
+  const firstCard = rail.firstElementChild
+
+  if (!firstCard) {
+    return rail.clientWidth
+  }
+
+  const gap = Number.parseFloat(window.getComputedStyle(rail).columnGap)
+
+  return firstCard.getBoundingClientRect().width + (Number.isNaN(gap) ? 0 : gap)
+}
+
 function showMoreJourneys() {
   const rail = journeyRailRef.value
 
@@ -105,8 +122,8 @@ function showMoreJourneys() {
     return
   }
 
-  rail.scrollBy({
-    left: rail.clientWidth * 0.33,
+  rail.scrollTo({
+    left: getJourneyRailScrollDistance(rail) * (focusedJourneyCardIndex.value + 1),
     behavior: 'smooth',
   })
 }
@@ -118,8 +135,8 @@ function showPreviousJourneys() {
     return
   }
 
-  rail.scrollBy({
-    left: rail.clientWidth * -0.33,
+  rail.scrollTo({
+    left: getJourneyRailScrollDistance(rail) * (focusedJourneyCardIndex.value - 1),
     behavior: 'smooth',
   })
 }
@@ -324,12 +341,12 @@ watch(visibleJourneys, async () => {
 
         <div
           v-if="hasJourneys"
-          class="relative overflow-hidden"
+          class="relative -ml-6 overflow-hidden sm:ml-0"
         >
           <button
             v-if="canShowPreviousJourneys"
             type="button"
-            class="absolute inset-y-0 left-0 z-[1] grid w-32 place-items-center bg-gradient-to-r from-background via-background/90 to-background/10 text-foreground outline-none transition hover:text-primary"
+            class="absolute inset-y-0 left-0 z-[1] grid w-14 place-items-center text-foreground outline-none transition hover:text-primary sm:w-32 sm:bg-gradient-to-r sm:from-background sm:via-background/90 sm:to-background/10"
             aria-label="Show previous journey cards"
             @click="showPreviousJourneys"
           >
@@ -340,14 +357,14 @@ watch(visibleJourneys, async () => {
 
           <div
             ref="journeyRailRef"
-            class="flex snap-x gap-4 overflow-x-auto pb-2 pr-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            class="flex snap-x gap-4 overflow-x-auto px-[11vw] pb-2 [scrollbar-width:none] sm:px-16 [&::-webkit-scrollbar]:hidden"
             aria-label="Journey cards"
             @scroll="updateJourneyRailOverflow"
           >
             <JourneyCard
               v-for="(journey, index) in visibleJourneys"
               :key="`${selectedJourneyYear ?? selectedJourneyPoint?.year ?? 'highlight'}-${journey.id}`"
-              class="w-[min(78vw,18rem)] shrink-0 snap-start transition duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:w-72 lg:w-80"
+              class="w-[78vw] shrink-0 snap-center transition duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:w-72 sm:snap-start lg:w-80"
               :class="getJourneyCardRevealClass(index)"
               :journey="journey"
             />
@@ -356,7 +373,7 @@ watch(visibleJourneys, async () => {
           <button
             v-if="canShowMoreJourneys"
             type="button"
-            class="absolute inset-y-0 right-0 grid w-32 place-items-center bg-gradient-to-l from-background via-background/90 to-background/10 text-foreground outline-none transition hover:text-primary"
+            class="absolute inset-y-0 right-0 grid w-14 place-items-center text-foreground outline-none transition hover:text-primary sm:w-32 sm:bg-gradient-to-l sm:from-background sm:via-background/90 sm:to-background/10"
             aria-label="Show more journey cards"
             @click="showMoreJourneys"
           >
