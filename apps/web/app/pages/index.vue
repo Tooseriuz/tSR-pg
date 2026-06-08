@@ -7,13 +7,16 @@ import type { Journey, JourneyMonth, JourneyPoint, JourneyYear } from '../types/
 type ApiJourney = components['schemas']['Journey']
 
 const isHeroCollapsed = ref(false)
+const hasJourneyIntroAnimated = ref(false)
 const brandMarkRef = ref<HTMLElement | null>(null)
+const journeysSectionRef = ref<HTMLElement | null>(null)
 const journeyRailRef = ref<HTMLElement | null>(null)
 const selectedJourneyYear = ref<JourneyYear | null>(null)
 const selectedJourneyPoint = ref<JourneyPoint | null>(null)
 const canShowPreviousJourneys = ref(false)
 const canShowMoreJourneys = ref(false)
 let brandMarkObserver: IntersectionObserver | null = null
+let journeyIntroObserver: IntersectionObserver | null = null
 
 const monthFormatter = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' })
 
@@ -121,6 +124,17 @@ function showPreviousJourneys() {
   })
 }
 
+function getJourneyCardRevealClass(index: number) {
+  const delayClasses = ['delay-150', 'delay-200', 'delay-300', 'delay-[400ms]', 'delay-500']
+
+  return [
+    hasJourneyIntroAnimated.value
+      ? 'translate-y-0 opacity-100'
+      : 'translate-y-10 opacity-0',
+    delayClasses[Math.min(index, delayClasses.length - 1)],
+  ]
+}
+
 function scrollToJourneys(behavior: ScrollBehavior = 'smooth') {
   document.getElementById('journeys')?.scrollIntoView({ behavior })
 }
@@ -159,12 +173,34 @@ onMounted(() => {
     brandMarkObserver.observe(brandMark)
   }
 
+  const journeysSection = journeysSectionRef.value
+
+  if (journeysSection) {
+    journeyIntroObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) {
+          return
+        }
+
+        hasJourneyIntroAnimated.value = true
+        journeyIntroObserver?.disconnect()
+        journeyIntroObserver = null
+      },
+      {
+        threshold: 0.28,
+      },
+    )
+
+    journeyIntroObserver.observe(journeysSection)
+  }
+
   updateJourneyRailOverflow()
   window.addEventListener('resize', updateJourneyRailOverflow)
 })
 
 onUnmounted(() => {
   brandMarkObserver?.disconnect()
+  journeyIntroObserver?.disconnect()
   window.removeEventListener('resize', updateJourneyRailOverflow)
 })
 
@@ -258,10 +294,12 @@ watch(visibleJourneys, async () => {
 
     <section
       id="journeys"
+      ref="journeysSectionRef"
       class="relative isolate grid min-h-[100dvh] content-center overflow-hidden border-t border-border bg-background py-20 pl-6 pr-0 sm:pl-8 lg:pl-[20%]"
     >
       <div class="grid w-full gap-12 lg:grid-cols-[minmax(18rem,28rem)_minmax(0,1fr)] lg:items-center">
-        <div class="grid gap-8 pr-6 sm:pr-8 lg:pr-0">
+        <div class="grid gap-8 pr-6 sm:pr-8 lg:pr-0 transition duration-700 ease-out motion-reduce:translate-x-0 motion-reduce:opacity-100 motion-reduce:transition-none"
+          :class="hasJourneyIntroAnimated ? 'translate-x-0 opacity-100' : '-translate-x-12 opacity-0'">
           <div class="grid gap-4">
             <p class="m-0 font-mono text-xs font-bold uppercase tracking-[0.32em] text-accent">
               journeys
@@ -307,9 +345,10 @@ watch(visibleJourneys, async () => {
             @scroll="updateJourneyRailOverflow"
           >
             <JourneyCard
-              v-for="journey in visibleJourneys"
+              v-for="(journey, index) in visibleJourneys"
               :key="`${selectedJourneyYear ?? selectedJourneyPoint?.year ?? 'highlight'}-${journey.id}`"
-              class="w-[min(78vw,18rem)] shrink-0 snap-start sm:w-72 lg:w-80"
+              class="w-[min(78vw,18rem)] shrink-0 snap-start transition duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:w-72 lg:w-80"
+              :class="getJourneyCardRevealClass(index)"
               :journey="journey"
             />
           </div>
